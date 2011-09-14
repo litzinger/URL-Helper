@@ -91,7 +91,8 @@ class Url_helper_ext {
             $data[$this->prefix.'referrer:segment_'. $i] = (isset($referrer_segments[$i-1])) ? $referrer_segments[$i-1] : '';
         }
         
-        // Get all the URL parts - http://php.net/manual/en/function.parse-url.php
+        // Get all the URL parts.
+        // http://php.net/manual/en/function.parse-url.php
         $url = parse_url($data[$this->prefix.'current_url']);
         
         foreach($url as $k => $v)
