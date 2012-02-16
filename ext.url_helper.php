@@ -5,14 +5,14 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 =====================================================
 URL Helper Extension for ExpressionEngine 2.0
 -----------------------------------------------------
-http://www.brianlitzinger.com/ee
+http://www.boldminded.com/
 -----------------------------------------------------
 
-This is a combination of Bjorn Borresen's last_segment 
-extension, and Low's seg2cat extension. One hook call, 
+This is a combination of Bjorn Borresen's last_segment
+extension (although last_segment is in EE 2.3+ core), 
+and Low's seg2cat extension. One hook call, 
 less to maintain, and less parsing to handle.
 
-http://devot-ee.com/add-ons/bjorn-last-segment
 http://gotolow.com/addons/low-seg2cat
 
 {last_segment} - returns the very last segment in the URI, even if it's a pagination segment
@@ -38,6 +38,17 @@ http://gotolow.com/addons/low-seg2cat
 {last_segment_category_image}
 {segment_category_ids} - 2&6&9 - useful for doing an all inclusive search of the segments
 {segment_category_ids_any} - 2|6|9 - useful for doing an all inclusive search of the segments
+
+Provided by PHP's parse_url() method
+
+{query} - current query string without ?
+{scheme} - http, https, ftp etc
+{host} - your domain name, e.g. localhost, site.com
+{port} - any port number present in the URL, e.g. :80 or :8888
+{path} - full folder/virtural folder path or all segments if your site is located at the root of the domain/vhost
+{fragment} - anything after # in the URI
+{user}
+{pass}
 
 =====================================================
 */
@@ -94,7 +105,7 @@ class Url_helper_ext {
         // Get all the URL parts.
         // http://php.net/manual/en/function.parse-url.php
         $url = parse_url($data[$this->prefix.'current_url']);
-        
+
         foreach($url as $k => $v)
         {
             $data[$this->prefix.$k] = $v;
