@@ -22,6 +22,7 @@ http://gotolow.com/addons/low-seg2cat
 {parent_segment} - Will return the 2nd to last segment in the URI. In the case of /seg1/seg2/seg3/, it will return "seg2"
 {all_segments} - /seg1/seg2/seg3/
 {current_url} - http://www.mysite.com + segments + query string
+{current_url_path} - http://www.mysite.com + segments
 {current_uri} - segments + query string
 {current_url_encoded} - {current_url} base64encoded
 {current_uri_encoded} - {current_uri} base64encoded
@@ -84,6 +85,7 @@ class Url_helper_ext {
         $qry = (isset($_SERVER['QUERY_STRING']) AND $_SERVER['QUERY_STRING'] != '') ? '?'. $_SERVER['QUERY_STRING'] : '';
         
         $data[$this->prefix.'current_url'] = $this->EE->functions->remove_double_slashes($this->EE->config->item('site_url') . $this->EE->uri->uri_string .'/'. $qry);
+        $data[$this->prefix.'current_url_path'] = $this->EE->functions->remove_double_slashes($this->EE->config->item('site_url') . $this->EE->uri->uri_string .'/');
         $data[$this->prefix.'current_uri'] = $this->EE->functions->remove_double_slashes('/'. $this->EE->uri->uri_string .'/'. $qry);
         $data[$this->prefix.'current_url_encoded'] = base64_encode($this->EE->functions->remove_double_slashes($data[$this->prefix.'current_url']));
         $data[$this->prefix.'current_uri_encoded'] = base64_encode($this->EE->functions->remove_double_slashes('/'. $this->EE->uri->uri_string .'/'. $qry));
