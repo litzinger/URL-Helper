@@ -24,10 +24,10 @@ return the ID of the last segment, or 2nd to last if the last is a pagination se
 Will return the 2nd to last segment in the URI. In the case of /seg1/seg2/seg3/, it will return "seg2"
 
 ### {all_parent_segments}
-/SEG1/PARENT_SEGMENT/seg3/ - Will return the full parent path.
+seg1/seg2/seg3 - Will return seg1/seg2
 
 ### {all_segments}
-/seg1/seg2/seg3/
+seg1/seg2/seg3
 
 ### {current_url}
 http://www.mysite.com + segments + query string
