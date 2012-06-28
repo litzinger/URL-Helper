@@ -8,6 +8,9 @@ You can add a variable prefix to all the available variables below by adding the
 
 ## Variables
 
+### {is_ajax_request}
+check to see if the current page was requested via ajax.
+
 ### {last_segment}
 returns the very last segment in the URI, even if it's a pagination segment 
 

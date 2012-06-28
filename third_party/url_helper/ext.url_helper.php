@@ -57,10 +57,9 @@ class Url_helper_ext {
         $data[$this->prefix.'current_uri'] = $this->EE->functions->remove_double_slashes('/'. $this->EE->uri->uri_string .'/'. $qry);
         $data[$this->prefix.'current_url_encoded'] = base64_encode($this->EE->functions->remove_double_slashes($data[$this->prefix.'current_url']));
         $data[$this->prefix.'current_uri_encoded'] = base64_encode($this->EE->functions->remove_double_slashes('/'. $this->EE->uri->uri_string .'/'. $qry));
-        
         $data[$this->prefix.'query_string'] = $qry;
-        
         $data[$this->prefix.'all_segments'] = implode('/', $segs);
+        $data[$this->prefix.'is_ajax_request'] = $this->EE->input->is_ajax_request();
         
         // Get the full referring URL
         $data[$this->prefix.'referrer'] = ( ! isset($_SERVER['HTTP_REFERER'])) ? '' : $this->EE->security->xss_clean($_SERVER['HTTP_REFERER']);
