@@ -75,8 +75,11 @@ class Url_helper_ext {
         // http://php.net/manual/en/function.parse-url.php
         $url = parse_url($data[$this->prefix.'current_url']);
 
+        $is_https = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? true : false;
+
         foreach($url as $k => $v)
         {
+            if ($k == 'scheme' AND $is_https) $v = 'https';
             $data[$this->prefix.$k] = $v;
         }
         
