@@ -17,6 +17,7 @@ http://gotolow.com/addons/low-seg2cat
 =====================================================
 CHANGELOG
 
+1.0.2 - Fix for last_segment_absolute - Thanks Dylan Tuohy
 1.0.1 - Removed slashes in {all_segments} var. Didn't play nice when used in conjunction with {site_url}
 
 =====================================================
@@ -108,24 +109,27 @@ class Url_helper_ext {
         
         // Figure out the last_segment. Taken from Bjorn Borresen's last_segment add-on
         $segment_count = $this->EE->uri->total_segments();      
-        $last_segment_absolute = $this->EE->uri->segment($segment_count); 
-        $last_segment = $last_segment_absolute;
+        $last_segment = $this->EE->uri->segment($segment_count); 
         $last_segment_id = $segment_count;
-                
-        if(substr($last_segment,0,1) == 'P') // might be a pagination page indicator
+        
+        // Get the last_segment, might include a /P segment
+        $data[$this->prefix.'last_segment'] = $last_segment;
+        $data[$this->prefix.'last_segment_id'] = $last_segment_id;
+
+        // Get the last_segment prior to a /P segment
+        if(substr($last_segment,0,1) == 'P')
         {
             $end = substr($last_segment, 1, strlen($last_segment));
+
             if ((preg_match( '/^\d*$/', $end) == 1))
             {
                 $last_segment_id = $segment_count-1;
                 $last_segment = $this->EE->uri->segment($last_segment_id);               
-            }       
+            }
         }
-        
-        $data[$this->prefix.'last_segment'] = $last_segment;
-        $data[$this->prefix.'last_segment_absolute'] = $last_segment_absolute;
-        $data[$this->prefix.'last_segment_id'] = $last_segment_id;
-        $data[$this->prefix.'last_segment_absolute_id'] = $segment_count;
+
+        $data[$this->prefix.'last_segment_absolute'] = $last_segment;
+        $data[$this->prefix.'last_segment_absolute_id'] = $last_segment_id;
         
         // Put everything into global_vars
         $this->EE->config->_global_vars = array_merge($this->EE->config->_global_vars, $data);
