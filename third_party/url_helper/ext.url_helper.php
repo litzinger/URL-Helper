@@ -17,6 +17,7 @@ http://gotolow.com/addons/low-seg2cat
 =====================================================
 CHANGELOG
 
+1.0.3 - Added reverse segments - Isaac Raway
 1.0.2 - Fix for last_segment_absolute - Thanks Dylan Tuohy
 1.0.1 - Removed slashes in {all_segments} var. Didn't play nice when used in conjunction with {site_url}
 
@@ -130,6 +131,13 @@ class Url_helper_ext {
 
         $data[$this->prefix.'last_segment_absolute'] = $last_segment;
         $data[$this->prefix.'last_segment_absolute_id'] = $last_segment_id;
+        
+        $rseg = 1;
+        for($i = $last_segment_id; $i >= 1; $i--)
+        {
+            $data[$this->prefix.'rev_segment_'.$rseg] = $this->EE->uri->segment($i);
+            $rseg++;
+        }
         
         // Put everything into global_vars
         $this->EE->config->_global_vars = array_merge($this->EE->config->_global_vars, $data);
