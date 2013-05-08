@@ -27,7 +27,7 @@ class Url_helper_ext {
     
     var $settings = array();
     var $name = 'URL Helper';
-    var $version = '1.0.1';
+    var $version = '1.0.2';
     var $description = 'Add various URL and segment variables to the Global variables.';
     var $settings_exist = 'n';
     var $docs_url = '';
@@ -53,11 +53,11 @@ class Url_helper_ext {
         
         $qry = (isset($_SERVER['QUERY_STRING']) AND $_SERVER['QUERY_STRING'] != '') ? '?'. $_SERVER['QUERY_STRING'] : '';
         
-        $data[$this->prefix.'current_url'] = $this->EE->functions->remove_double_slashes($this->EE->config->item('site_url') . $this->EE->uri->uri_string . $qry);
-        $data[$this->prefix.'current_url_path'] = $this->EE->functions->remove_double_slashes($this->EE->config->item('site_url') . $this->EE->uri->uri_string);
-        $data[$this->prefix.'current_uri'] = $this->EE->functions->remove_double_slashes('/'. $this->EE->uri->uri_string . $qry);
-        $data[$this->prefix.'current_url_encoded'] = base64_encode($this->EE->functions->remove_double_slashes($data[$this->prefix.'current_url']));
-        $data[$this->prefix.'current_uri_encoded'] = base64_encode($this->EE->functions->remove_double_slashes('/'. $this->EE->uri->uri_string . $qry));
+        $data[$this->prefix.'current_url'] = reduce_double_slashes($this->EE->config->item('site_url') . $this->EE->uri->uri_string . $qry);
+        $data[$this->prefix.'current_url_path'] = reduce_double_slashes($this->EE->config->item('site_url') . $this->EE->uri->uri_string);
+        $data[$this->prefix.'current_uri'] = reduce_double_slashes('/'. $this->EE->uri->uri_string . $qry);
+        $data[$this->prefix.'current_url_encoded'] = base64_encode(reduce_double_slashes($data[$this->prefix.'current_url']));
+        $data[$this->prefix.'current_uri_encoded'] = base64_encode(reduce_double_slashes('/'. $this->EE->uri->uri_string . $qry));
         $data[$this->prefix.'query_string'] = $qry;
         $data[$this->prefix.'all_segments'] = implode('/', $segs);
         $data[$this->prefix.'is_ajax_request'] = $this->EE->input->is_ajax_request();
