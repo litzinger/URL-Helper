@@ -171,11 +171,25 @@ class Url_helper_ext {
         }
 
         // Compose query, get results
-        $this->EE->db->select('cat_id, cat_url_title, cat_name, cat_description, cat_image, parent_id');
-        $this->EE->db->from('exp_categories');
-        $this->EE->db->where('site_id', $site);
-        $this->EE->db->where_in('cat_url_title', $segs);
-        $query = $this->EE->db->get();
+        if (array_key_exists('publisher', ee()->addons->get_installed('modules')) && !PUBLISHER_MODE_DEFAULT_LANGUAGE)
+        {
+            $query = $this->EE->db->select('pc.cat_id, pc.cat_url_title, pc.cat_name, pc.cat_description, pc.cat_image, c.parent_id')
+                                  ->from('publisher_categories AS pc')
+                                  ->join('categories AS c', 'c.cat_id = pc.cat_id')
+                                  ->where('pc.site_id', $site)
+                                  ->where('pc.publisher_lang_id', $this->EE->publisher_lib->lang_id)
+                                  ->where('pc.publisher_status', $this->EE->publisher_lib->status)
+                                  ->where_in('pc.cat_url_title', $segs)
+                                  ->get();
+        }
+        else
+        {
+            $query = $this->EE->db->select('cat_id, cat_url_title, cat_name, cat_description, cat_image, parent_id')
+                                  ->from('categories')
+                                  ->where('site_id', $site)
+                                  ->where_in('cat_url_title', $segs)
+                                  ->get();
+        }
 
         // if we have matching categories, continue...
         if ($query->num_rows())
