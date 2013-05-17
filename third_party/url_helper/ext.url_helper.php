@@ -17,6 +17,7 @@ http://gotolow.com/addons/low-seg2cat
 =====================================================
 CHANGELOG
 
+1.0.4 - Added support for Publisher
 1.0.3 - Added reverse segments - Isaac Raway
 1.0.2 - Fix for last_segment_absolute - Thanks Dylan Tuohy
 1.0.1 - Removed slashes in {all_segments} var. Didn't play nice when used in conjunction with {site_url}

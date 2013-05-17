@@ -56,6 +56,9 @@ full referring/previous url visited
 ### {referrer:segment_N}
 fetch any segment from the referring url
 
+### {rev_segment_N}
+segments reversed
+
 ### {segment_N_category_id}
 
 ### {segment_N_category_name}
