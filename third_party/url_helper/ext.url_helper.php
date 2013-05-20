@@ -172,7 +172,7 @@ class Url_helper_ext {
         }
 
         // Compose query, get results
-        if (array_key_exists('publisher', ee()->addons->get_installed('modules')) && !PUBLISHER_MODE_DEFAULT_LANGUAGE)
+        if (array_key_exists('publisher', $this->EE->addons->get_installed('modules')) && !PUBLISHER_MODE_DEFAULT_LANGUAGE)
         {
             $query = $this->EE->db->select('pc.cat_id, pc.cat_url_title, pc.cat_name, pc.cat_description, pc.cat_image, c.parent_id')
                                   ->from('publisher_categories AS pc')
