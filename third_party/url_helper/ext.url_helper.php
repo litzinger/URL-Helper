@@ -52,7 +52,7 @@ class Url_helper_ext {
     {     
         // Save a copy of the array so we don't reverse the global array, oops!
         $segs = $this->EE->uri->segments;
-        
+
         $qry = (isset($_SERVER['QUERY_STRING']) AND $_SERVER['QUERY_STRING'] != '') ? '?'. $_SERVER['QUERY_STRING'] : '';
         
         $data[$this->prefix.'current_url'] = reduce_double_slashes($this->EE->config->item('site_url') . $this->EE->uri->uri_string . $qry);
@@ -142,7 +142,7 @@ class Url_helper_ext {
         
         // Put everything into global_vars
         $this->EE->config->_global_vars = array_merge($this->EE->config->_global_vars, $data);
-        
+
         // This is basically the LowSeg2Cat extension.
         $this->set_category_segments();
     }
@@ -172,7 +172,7 @@ class Url_helper_ext {
         }
 
         // Compose query, get results
-        if (array_key_exists('publisher', $this->EE->addons->get_installed('modules')) && !PUBLISHER_MODE_DEFAULT_LANGUAGE)
+        if (array_key_exists('publisher', $this->EE->addons->get_installed('modules')) && defined('PUBLISHER_MODE_DEFAULT_LANGUAGE') && !PUBLISHER_MODE_DEFAULT_LANGUAGE)
         {
             $query = $this->EE->db->select('pc.cat_id, pc.cat_url_title, pc.cat_name, pc.cat_description, pc.cat_image, c.parent_id')
                                   ->from('publisher_categories AS pc')
