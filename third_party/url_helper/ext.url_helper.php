@@ -159,6 +159,7 @@ class Url_helper_ext {
         $site = $this->EE->config->item('site_id');
         $data = $cats = $segs = array();
         $data[$this->prefix.'segment_category_ids'] = '';
+        $data[$this->prefix.'segment_category_ids_any'] = '';
         
         // loop through segments and set data array thus: segment_1_category_id etc
         foreach ($this->EE->uri->segments AS $nr => $seg)
