@@ -68,6 +68,7 @@ class Url_helper_ext {
         $data[$this->prefix.'referrer'] = ( ! isset($_SERVER['HTTP_REFERER'])) ? '' : $this->EE->security->xss_clean($_SERVER['HTTP_REFERER']);
         
         // Strip semi-colons from the URL which would otherwise throw a "Disallowed Key Characters" error
+        // Stems from a 5 year old bug in CI :/ http://ellislab.com/forums/viewthread/84137/P15
         $data[$this->prefix.'referrer'] = str_replace(';', '', $data[$this->prefix.'referrer']);
         
         // Now for something fun. Get the referring URL's segments! {referrer:segment_1}, {referrer:segment_2} etc
