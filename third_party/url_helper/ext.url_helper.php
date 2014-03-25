@@ -8,15 +8,16 @@ URL Helper Extension for ExpressionEngine 2.0
 http://www.boldminded.com
 -----------------------------------------------------
 
-This is a combination of Bjorn Borresen's last_segment 
-extension (although last_segment is in EE 2.3+ core), 
-and Low's seg2cat extension. One hook call, 
-less to maintain, and less parsing to handle.    
+This is a combination of Bjorn Borresen's last_segment
+extension (although last_segment is in EE 2.3+ core),
+and Low's seg2cat extension. One hook call,
+less to maintain, and less parsing to handle.
 http://gotolow.com/addons/low-seg2cat
 
 =====================================================
 CHANGELOG
 
+1.0.5 - Fixed bug with Publisher (a previously available constant was changed to a class property)
 1.0.4 - Added support for Publisher
 1.0.3 - Added reverse segments - Isaac Raway
 1.0.2 - Fix for last_segment_absolute - Thanks Dylan Tuohy
@@ -26,35 +27,35 @@ CHANGELOG
 */
 
 class Url_helper_ext {
-    
+
     var $settings = array();
     var $name = 'URL Helper';
-    var $version = '1.0.4';
+    var $version = '1.0.5';
     var $description = 'Add various URL and segment variables to the Global variables.';
     var $settings_exist = 'n';
     var $docs_url = '';
-    
+
     var $format = TRUE;
-    
+
     function Url_helper_ext($settings='')
     {
         $this->settings = $settings;
         $this->EE =& get_instance();
-        
+
         $this->config = $this->EE->config->item('url_helper') ? $this->EE->config->item('url_helper') : array();
         $this->prefix = isset($this->config['prefix']) ? $this->config['prefix'] : '';
     }
-    
+
     /**
      * Do the magic.
      */
     function set_url_helper()
-    {     
+    {
         // Save a copy of the array so we don't reverse the global array, oops!
         $segs = $this->EE->uri->segments;
 
         $qry = (isset($_SERVER['QUERY_STRING']) AND $_SERVER['QUERY_STRING'] != '') ? '?'. $_SERVER['QUERY_STRING'] : '';
-        
+
         $data[$this->prefix.'current_url'] = reduce_double_slashes($this->EE->config->item('site_url') . $this->EE->uri->uri_string . $qry);
         $data[$this->prefix.'current_url_path'] = reduce_double_slashes($this->EE->config->item('site_url') . $this->EE->uri->uri_string);
         $data[$this->prefix.'current_uri'] = reduce_double_slashes('/'. $this->EE->uri->uri_string . $qry);
@@ -63,14 +64,14 @@ class Url_helper_ext {
         $data[$this->prefix.'query_string'] = $qry;
         $data[$this->prefix.'all_segments'] = implode('/', $segs);
         $data[$this->prefix.'is_ajax_request'] = $this->EE->input->is_ajax_request();
-        
+
         // Get the full referring URL
         $data[$this->prefix.'referrer'] = ( ! isset($_SERVER['HTTP_REFERER'])) ? '' : $this->EE->security->xss_clean($_SERVER['HTTP_REFERER']);
-        
+
         // Strip semi-colons from the URL which would otherwise throw a "Disallowed Key Characters" error
         // Stems from a 5 year old bug in CI :/ http://ellislab.com/forums/viewthread/84137/P15
         $data[$this->prefix.'referrer'] = str_replace(';', '', $data[$this->prefix.'referrer']);
-        
+
         // Now for something fun. Get the referring URL's segments! {referrer:segment_1}, {referrer:segment_2} etc
         $referrer_segments = explode('/', str_replace($this->EE->config->item('site_url'), '', $data[$this->prefix.'referrer']));
         for($i = 1; $i <= 9; $i++)
@@ -89,16 +90,16 @@ class Url_helper_ext {
             if ($k == 'scheme' AND $is_https) $v = 'https';
             $data[$this->prefix.$k] = $v;
         }
-        
+
         // Do a few things to get the parent segment, and only the parent segment
         // This could be helpful if we're 5 levels deep in the URL, and just need
         // the immediate parent, but don't know how deep we are.
-        
+
         // Get rid of the last segment, which is our current page.
         array_pop($segs);
 
         $data[$this->prefix.'all_parent_segments'] = implode('/', $segs);
-        
+
         // If this is true, then we're 2 segments deep.
         if(count($segs) == 1)
         {
@@ -106,18 +107,18 @@ class Url_helper_ext {
         }
         else
         {
-            // Reverse the array, b/c we don't know how deep we are, and return 
+            // Reverse the array, b/c we don't know how deep we are, and return
             // the first, which is the current page's parent. And re-index them
             // so the first is always 0. Schweet!
             $segs = array_merge(array_reverse($segs, TRUE));
             $data[$this->prefix.'parent_segment'] = isset($segs[0]) ? $segs[0] : '';
         }
-        
+
         // Figure out the last_segment. Taken from Bjorn Borresen's last_segment add-on
-        $segment_count = $this->EE->uri->total_segments();      
-        $last_segment = $this->EE->uri->segment($segment_count); 
+        $segment_count = $this->EE->uri->total_segments();
+        $last_segment = $this->EE->uri->segment($segment_count);
         $last_segment_id = $segment_count;
-        
+
         // Get the last_segment, might include a /P segment
         $data[$this->prefix.'last_segment'] = $last_segment;
         $data[$this->prefix.'last_segment_id'] = $last_segment_id;
@@ -130,27 +131,27 @@ class Url_helper_ext {
             if ((preg_match( '/^\d*$/', $end) == 1))
             {
                 $last_segment_id = $segment_count-1;
-                $last_segment = $this->EE->uri->segment($last_segment_id);               
+                $last_segment = $this->EE->uri->segment($last_segment_id);
             }
         }
 
         $data[$this->prefix.'last_segment_absolute'] = $last_segment;
         $data[$this->prefix.'last_segment_absolute_id'] = $last_segment_id;
-        
+
         $rseg = 1;
         for($i = $last_segment_id; $i >= 1; $i--)
         {
             $data[$this->prefix.'rev_segment_'.$rseg] = $this->EE->uri->segment($i);
             $rseg++;
         }
-        
+
         // Put everything into global_vars
         $this->EE->config->_global_vars = array_merge($this->EE->config->_global_vars, $data);
 
         // This is basically the LowSeg2Cat extension.
         $this->set_category_segments();
     }
-    
+
     private function set_category_segments()
     {
         // Only continue if request is a page and we have segments to check
@@ -158,13 +159,13 @@ class Url_helper_ext {
 
         // Suggestion by Leevi Graham: check for pattern before continuing
         // if ( !empty($this->settings['uri_pattern']) && !preg_match($this->settings['uri_pattern'], $this->EE->uri->uri_string) ) return;
-    
+
         // initiate some vars
         $site = $this->EE->config->item('site_id');
         $data = $cats = $segs = array();
         $data[$this->prefix.'segment_category_ids'] = '';
         $data[$this->prefix.'segment_category_ids_any'] = '';
-        
+
         // loop through segments and set data array thus: segment_1_category_id etc
         foreach ($this->EE->uri->segments AS $nr => $seg)
         {
@@ -177,7 +178,7 @@ class Url_helper_ext {
         }
 
         // Compose query, get results
-        if (array_key_exists('publisher', $this->EE->addons->get_installed('modules')) && defined('PUBLISHER_MODE_DEFAULT_LANGUAGE') && !PUBLISHER_MODE_DEFAULT_LANGUAGE)
+        if (array_key_exists('publisher', $this->EE->addons->get_installed('modules')) && !ee()->publisher_lib->is_default_mode)
         {
             $query = $this->EE->db->select('pc.cat_id, pc.cat_url_title, pc.cat_name, pc.cat_description, pc.cat_image, c.parent_id')
                                   ->from('publisher_categories AS pc')
@@ -205,7 +206,7 @@ class Url_helper_ext {
 
             // flip segment array to get 'segment_1' => '1'
             $ids = array_flip($this->EE->uri->segments);
-            
+
             // loop through categories
             foreach ($query->result_array() as $row)
             {
@@ -216,7 +217,7 @@ class Url_helper_ext {
                 $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_image']         = $row['cat_image'];
                 $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_parent_id']     = $row['parent_id'];
                 $cats[] = $row['cat_id'];
-                
+
                 if($ids[$row['cat_url_title']] == count($ids))
                 {
                     $data[$this->prefix.'last_segment_category_id']           = $row['cat_id'];
@@ -225,17 +226,17 @@ class Url_helper_ext {
                     $data[$this->prefix.'last_segment_category_image']        = $row['cat_image'];
                 }
             }
-            
+
             // create inclusive stack of all category ids present in segments
             $data[$this->prefix.'segment_category_ids'] = implode('&',$cats);
             $data[$this->prefix.'segment_category_ids_any'] = implode('|',$cats);
         }
-        
+
         // Add data to global vars
         $this->EE->config->_global_vars = array_merge($this->EE->config->_global_vars, $data);
     }
-    
-    
+
+
     /**
      * Install the extension
      */
@@ -243,7 +244,7 @@ class Url_helper_ext {
     {
         // Delete old hooks
         $this->EE->db->query("DELETE FROM exp_extensions WHERE class = '". __CLASS__ ."'");
-        
+
         // Add new hooks
         $ext_template = array(
             'class'    => __CLASS__,
@@ -252,16 +253,16 @@ class Url_helper_ext {
             'version'  => $this->version,
             'enabled'  => 'y'
         );
-        
+
         $extensions = array(
             array('hook'=>'sessions_start', 'method'=>'set_url_helper')
         );
-        
+
         foreach($extensions as $extension)
         {
             $ext = array_merge($ext_template, $extension);
             $this->EE->db->insert('exp_extensions', $ext);
-        }       
+        }
     }
 
 
@@ -275,7 +276,7 @@ class Url_helper_ext {
     /**
      * Uninstalls extension
      */
-    function disable_extension() 
+    function disable_extension()
     {
         // Delete records
         $this->EE->db->where('class', __CLASS__);
