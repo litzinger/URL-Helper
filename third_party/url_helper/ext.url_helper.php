@@ -100,30 +100,24 @@ class Url_helper_ext {
 
         $data[$this->prefix.'all_parent_segments'] = implode('/', $segs);
 
-        // If this is true, then we're 2 segments deep.
-        if(count($segs) == 1)
-        {
-            $data[$this->prefix.'parent_segment'] = $segs[1];
-        }
-        else
-        {
-            // Reverse the array, b/c we don't know how deep we are, and return
-            // the first, which is the current page's parent. And re-index them
-            // so the first is always 0. Schweet!
-            $segs = array_merge(array_reverse($segs, TRUE));
-            $data[$this->prefix.'parent_segment'] = isset($segs[0]) ? $segs[0] : '';
-        }
-
-        // Figure out the last_segment. Taken from Bjorn Borresen's last_segment add-on
+        // Figure out the last_segment and parent segments. Taken from Bjorn Borresen's last_segment add-on
         $segment_count = $this->EE->uri->total_segments();
         $last_segment = $this->EE->uri->segment($segment_count);
         $last_segment_id = $segment_count;
+
+        $parent_segment = $this->EE->uri->segment($segment_count-1);
+        // If we are at least 2 segments deep, then set the ID, else set it to 0
+        $parent_segment_id = $segment_count > 1 ? $segment_count-1 : 0;
 
         // Get the last_segment, might include a /P segment
         $data[$this->prefix.'last_segment'] = $last_segment;
         $data[$this->prefix.'last_segment_id'] = $last_segment_id;
 
-        // Get the last_segment prior to a /P segment
+         // Get the parent_segment, might include a /P segment
+        $data[$this->prefix.'parent_segment'] = $parent_segment;
+        $data[$this->prefix.'parent_segment_id'] = $parent_segment_id;
+
+        // Get the last_segment and parent_segment prior to a /P segment
         if(substr($last_segment,0,1) == 'P')
         {
             $end = substr($last_segment, 1, strlen($last_segment));
@@ -132,11 +126,17 @@ class Url_helper_ext {
             {
                 $last_segment_id = $segment_count-1;
                 $last_segment = $this->EE->uri->segment($last_segment_id);
+
+                $parent_segment_id = $segment_count-2;
+                $parent_segment = $this->EE->uri->segment($parent_segment_id);
             }
         }
 
         $data[$this->prefix.'last_segment_absolute'] = $last_segment;
         $data[$this->prefix.'last_segment_absolute_id'] = $last_segment_id;
+
+        $data[$this->prefix.'parent_segment_absolute'] = $parent_segment;
+        $data[$this->prefix.'parent_segment_absolute_id'] = $parent_segment_id;
 
         $rseg = 1;
         for($i = $last_segment_id; $i >= 1; $i--)
