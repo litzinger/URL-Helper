@@ -12,19 +12,28 @@ You can add a variable prefix to all the available variables below by adding the
 check to see if the current page was requested via ajax.
 
 ### {last_segment}
-returns the very last segment in the URI, even if it's a pagination segment 
+returns the very last segment in the URI, even if it's a pagination segment
 
 ### {last_segment_absolute}
-returns the very last segment in the URI, but 2nd to last if the last is a pagination segment 
+returns the very last segment in the URI, but 2nd to last if the last is a pagination segment
 
 ### {last_segment_id}
-returns the ID of the last segment, in the case of /seg1/seg2/seg3/ it will return "3"   
+returns the ID of the last segment, in the case of /seg1/seg2/seg3/ it will return "3"
 
 ### {last_segment_absolute_id}
 return the ID of the last segment, or 2nd to last if the last is a pagination segment. In the case of ### /seg1/seg2/seg3/P5 it will return "3"
 
 ### {parent_segment}
 Will return the 2nd to last segment in the URI. In the case of /seg1/seg2/seg3/, it will return "seg2"
+
+### {parent_segment_id}
+returns the ID of the 2nd to last segment, in the case of /seg1/seg2/seg3/ it will return "2"
+
+### {parent_segment_absolute}
+returns the 2nd to last segment in the URI, but 3rd to last if the last is a pagination segment
+
+### {parent_segment_absolute_id}
+return the ID of the 2nd to last segment, or 3rd to last if the last is a pagination segment. In the case of ### /seg1/seg2/seg3/P5 it will return "2"
 
 ### {all_parent_segments}
 seg1/seg2/seg3 - Will return seg1/seg2
@@ -82,23 +91,23 @@ segments reversed
 2|6|9 - useful for doing an "if any" search of the segments
 
 ### {query}
-current query string without ? 
+current query string without ?
 
 ### {scheme}
 http, https, ftp etc
 
 ### {host}
-your domain name, e.g. localhost, site.com  
+your domain name, e.g. localhost, site.com
 
 ### {port}
-any port number present in the URL, e.g. :80 or :8888 
+any port number present in the URL, e.g. :80 or :8888
 
 ### {path}
-full folder/virtural folder path or all segments if your site is located at the root of the domain/vhost 
+full folder/virtural folder path or all segments if your site is located at the root of the domain/vhost
 
 ### {fragment}
 anything after # in the URI
 
-### {user} 
+### {user}
 
 ### {pass}
