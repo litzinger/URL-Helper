@@ -31,7 +31,7 @@ class Url_helper_ext {
 
     var $settings = array();
     var $name = 'URL Helper';
-    var $version = '1.0.5';
+    var $version = '1.0.6';
     var $description = 'Add various URL and segment variables to the Global variables.';
     var $settings_exist = 'n';
     var $docs_url = '';
