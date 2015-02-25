@@ -17,6 +17,7 @@ http://gotolow.com/addons/low-seg2cat
 =====================================================
 CHANGELOG
 
+1.x.x - Added {all_segments_exclude_pagination} - Nick Benson
 1.0.5 - Fixed bug with Publisher (a previously available constant was changed to a class property)
 1.0.4 - Added support for Publisher
 1.0.3 - Added reverse segments - Isaac Raway
@@ -63,6 +64,7 @@ class Url_helper_ext {
         $data[$this->prefix.'current_uri_encoded'] = base64_encode(reduce_double_slashes('/'. $this->EE->uri->uri_string . $qry));
         $data[$this->prefix.'query_string'] = $qry;
         $data[$this->prefix.'all_segments'] = implode('/', $segs);
+
         $data[$this->prefix.'is_ajax_request'] = $this->EE->input->is_ajax_request();
 
         // Get the full referring URL
@@ -113,27 +115,29 @@ class Url_helper_ext {
         $data[$this->prefix.'last_segment'] = $last_segment;
         $data[$this->prefix.'last_segment_id'] = $last_segment_id;
 
-        // Get the parent_segment, might include a /P segment
+         // Get the parent_segment, might include a /P segment
         $data[$this->prefix.'parent_segment'] = $parent_segment;
         $data[$this->prefix.'parent_segment_id'] = $parent_segment_id;
 
-        $all_segments_absolute = $data[$this->prefix.'all_segments'];
+        // Set default value for all_segments_exclude_pagination
+        $data[$this->prefix.'all_segments_exclude_pagination'] = $data[$this->prefix.'all_segments'];
 
-        // Get the last_segment, parent_segment and all segments prior to a /P segment
+        // Get the last_segment and parent_segment prior to a /P segment
         if(substr($last_segment,0,1) == 'P')
         {
             $end = substr($last_segment, 1, strlen($last_segment));
 
             if ((preg_match( '/^\d*$/', $end) == 1))
             {
+                $data[$this->prefix.'all_segments_exclude_pagination'] = implode('/', $segs);
+
                 $last_segment_id = $segment_count-1;
                 $last_segment = $this->EE->uri->segment($last_segment_id);
 
                 $parent_segment_id = $segment_count-2;
                 $parent_segment = $this->EE->uri->segment($parent_segment_id);
 
-                $all_segments_absolute = $data[$this->prefix.'all_parent_segments'];
-            }
+           }
         }
 
         $data[$this->prefix.'last_segment_absolute'] = $last_segment;
@@ -141,9 +145,6 @@ class Url_helper_ext {
 
         $data[$this->prefix.'parent_segment_absolute'] = $parent_segment;
         $data[$this->prefix.'parent_segment_absolute_id'] = $parent_segment_id;
-
-        // Get all segments, apart from if the last one is a Pagination segment
-        $data[$this->prefix.'all_segments_absolute'] = $all_segments_absolute;
 
         $rseg = 1;
         for($i = $last_segment_id; $i >= 1; $i--)
