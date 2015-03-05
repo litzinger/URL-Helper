@@ -17,6 +17,7 @@ http://gotolow.com/addons/low-seg2cat
 =====================================================
 CHANGELOG
 
+1.0.6 - Added {all_segments_exclude_pagination} - Nick Benson
 1.0.5 - Fixed bug with Publisher (a previously available constant was changed to a class property)
 1.0.4 - Added support for Publisher
 1.0.3 - Added reverse segments - Isaac Raway
@@ -30,7 +31,7 @@ class Url_helper_ext {
 
     var $settings = array();
     var $name = 'URL Helper';
-    var $version = '1.0.5';
+    var $version = '1.0.6';
     var $description = 'Add various URL and segment variables to the Global variables.';
     var $settings_exist = 'n';
     var $docs_url = '';
@@ -116,16 +117,20 @@ class Url_helper_ext {
         // Get the parent_segment, might include a /P segment
         $data[$this->prefix.'parent_segment'] = $parent_segment;
         $data[$this->prefix.'parent_segment_id'] = $parent_segment_id;
-
         $all_segments_absolute = $data[$this->prefix.'all_segments'];
 
-        // Get the last_segment, parent_segment and all segments prior to a /P segment
+        // Set default value for all_segments_exclude_pagination
+        $data[$this->prefix.'all_segments_exclude_pagination'] = $data[$this->prefix.'all_segments'];
+
+        // Get the last_segment, parent_segment and parent_segment prior to a /P segment
         if(substr($last_segment,0,1) == 'P')
         {
             $end = substr($last_segment, 1, strlen($last_segment));
 
             if ((preg_match( '/^\d*$/', $end) == 1))
             {
+                $data[$this->prefix.'all_segments_exclude_pagination'] = implode('/', $segs);
+
                 $last_segment_id = $segment_count-1;
                 $last_segment = $this->EE->uri->segment($last_segment_id);
 
@@ -133,7 +138,7 @@ class Url_helper_ext {
                 $parent_segment = $this->EE->uri->segment($parent_segment_id);
 
                 $all_segments_absolute = $data[$this->prefix.'all_parent_segments'];
-            }
+           }
         }
 
         $data[$this->prefix.'last_segment_absolute'] = $last_segment;
