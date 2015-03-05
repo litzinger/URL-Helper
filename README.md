@@ -41,6 +41,9 @@ seg1/seg2/seg3 - Will return seg1/seg2
 ### {all_segments}
 seg1/seg2/seg3
 
+### {all_segments_exclude_pagination}
+seg1/seg2/seg3/P10 - Will return seg1/seg2/seg3
+
 ### {current_url}
 http://www.mysite.com + segments + query string
 
