@@ -17,6 +17,7 @@ http://gotolow.com/addons/low-seg2cat
 =====================================================
 CHANGELOG
 
+1.0.7 - Added {segment_X_category_group_id}, {last_segment_category_group_id} - Nick Benson
 1.0.6 - Added {all_segments_exclude_pagination} - Nick Benson
 1.0.5 - Fixed bug with Publisher (a previously available constant was changed to a class property)
 1.0.4 - Added support for Publisher
@@ -31,7 +32,7 @@ class Url_helper_ext {
 
     var $settings = array();
     var $name = 'URL Helper';
-    var $version = '1.0.6';
+    var $version = '1.0.7';
     var $description = 'Add various URL and segment variables to the Global variables.';
     var $settings_exist = 'n';
     var $docs_url = '';
@@ -192,7 +193,7 @@ class Url_helper_ext {
         // Compose query, get results
         if (array_key_exists('publisher', $this->EE->addons->get_installed('modules')) && !ee()->publisher_lib->is_default_mode)
         {
-            $query = $this->EE->db->select('pc.cat_id, pc.cat_url_title, pc.cat_name, pc.cat_description, pc.cat_image, c.parent_id')
+            $query = $this->EE->db->select('pc.cat_id, pc.cat_url_title, pc.cat_name, pc.cat_description, pc.cat_image, pc.group_id, c.parent_id')
                                   ->from('publisher_categories AS pc')
                                   ->join('categories AS c', 'c.cat_id = pc.cat_id')
                                   ->where('pc.site_id', $site)
@@ -203,7 +204,7 @@ class Url_helper_ext {
         }
         else
         {
-            $query = $this->EE->db->select('cat_id, cat_url_title, cat_name, cat_description, cat_image, parent_id')
+            $query = $this->EE->db->select('cat_id, cat_url_title, cat_name, cat_description, cat_image, parent_id, group_id')
                                   ->from('categories')
                                   ->where('site_id', $site)
                                   ->where_in('cat_url_title', $segs)
@@ -228,6 +229,7 @@ class Url_helper_ext {
                 $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_description']   = $row['cat_description'];
                 $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_image']         = $row['cat_image'];
                 $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_parent_id']     = $row['parent_id'];
+                $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_group_id']     = $row['group_id'];
                 $cats[] = $row['cat_id'];
 
                 if($ids[$row['cat_url_title']] == count($ids))
@@ -236,6 +238,7 @@ class Url_helper_ext {
                     $data[$this->prefix.'last_segment_category_name']         = $this->EE->typography->format_characters($row['cat_name']);
                     $data[$this->prefix.'last_segment_category_description']  = $row['cat_description'];
                     $data[$this->prefix.'last_segment_category_image']        = $row['cat_image'];
+                    $data[$this->prefix.'last_segment_category_group_id']        = $row['group_id'];
                 }
             }
 
