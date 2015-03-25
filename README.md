@@ -79,6 +79,8 @@ segments reversed
 
 ### {segment_N_category_image}
 
+### {segment_X_category_group_id}
+
 ### {last_segment_category_id}
 
 ### {last_segment_category_name}
@@ -86,6 +88,8 @@ segments reversed
 ### {last_segment_category_description}
 
 ### {last_segment_category_image}
+
+### {last_segment_category_group_id}
 
 ### {segment_category_ids}
 2&6&9 - useful for doing an all inclusive search of the segments
