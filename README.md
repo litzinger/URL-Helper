@@ -79,7 +79,7 @@ segments reversed
 
 ### {segment_N_category_image}
 
-### {segment_X_category_group_id}
+### {segment_N_category_group_id}
 
 ### {last_segment_category_id}
 
