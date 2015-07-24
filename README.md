@@ -50,6 +50,9 @@ http://www.mysite.com + segments + query string
 ### {current_url_path}
 http://www.mysite.com + segments
 
+### {current_url_lowercase}
+Same as {current_url} but lowercases it
+
 ### {current_uri}
 segments + query string
 
