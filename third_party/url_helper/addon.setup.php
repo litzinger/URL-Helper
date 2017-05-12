@@ -6,7 +6,7 @@ return [
     'docs_url'      => 'https://github.com/litzinger/url-helper',
     'name'          => 'Url Helper',
     'description'   => '',
-    'version'       => '1.0.8',
+    'version'       => '1.10.0',
     'namespace'     => 'BoldMinded\UrlHelper',
     'settings_exist' => false,
 ];

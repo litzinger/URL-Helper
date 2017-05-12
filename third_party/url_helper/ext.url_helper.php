@@ -17,6 +17,7 @@ http://gotolow.com/addons/low-seg2cat
 =====================================================
 CHANGELOG
 
+1.10.0 - Updated support for Publisher 2 in EE3
 1.0.9 - Changed all references of $this->EE to ee()
 1.0.8 - Added {current_url_lowercase} to assist with canonical URLs in environments that may have caps in URLs
 1.0.7 - Added {segment_X_category_group_id}, {last_segment_category_group_id} - Nick Benson
@@ -34,7 +35,7 @@ class Url_helper_ext {
 
     var $settings = array();
     var $name = 'URL Helper';
-    var $version = '1.0.9';
+    var $version = '1.10.0';
     var $description = 'Add various URL and segment variables to the Global variables.';
     var $settings_exist = 'n';
     var $docs_url = '';
@@ -194,15 +195,27 @@ class Url_helper_ext {
             $segs[] = $seg;
         }
 
+        if (version_compare(APP_VER, '3.0.0', '<')) {
+            $langId = ee()->publisher_lib->lang_id;
+            $status = ee()->publisher_lib->status;
+            $defaultMode = ee()->publisher_lib->is_default_mode;
+        } else {
+            /** @var \BoldMinded\Publisher\Service\Request $request */
+            $request = ee(\BoldMinded\Publisher\Service\Request::NAME);
+            $langId = $request->getCurrentLanguage()->getId();
+            $status = $request->getCurrentStatus();
+            $defaultMode = $request->isDefaultMode();
+        }
+
         // Compose query, get results
-        if (array_key_exists('publisher', ee()->addons->get_installed('modules')) && !ee()->publisher_lib->is_default_mode)
+        if (array_key_exists('publisher', ee()->addons->get_installed('modules')) && !$defaultMode)
         {
             $query = ee()->db->select('pc.cat_id, pc.cat_url_title, pc.cat_name, pc.cat_description, pc.cat_image, pc.group_id, c.parent_id')
                 ->from('publisher_categories AS pc')
                 ->join('categories AS c', 'c.cat_id = pc.cat_id')
                 ->where('pc.site_id', $site)
-                ->where('pc.publisher_lang_id', ee()->publisher_lib->lang_id)
-                ->where('pc.publisher_status', ee()->publisher_lib->status)
+                ->where('pc.publisher_lang_id', $langId)
+                ->where('pc.publisher_status', $status)
                 ->where_in('pc.cat_url_title', $segs)
                 ->get();
         }
