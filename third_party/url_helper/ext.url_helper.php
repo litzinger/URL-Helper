@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /*
 =====================================================
-URL Helper Extension for ExpressionEngine 2.0
+URL Helper Extension for ExpressionEngine 2.0 & 3.0
 -----------------------------------------------------
 http://www.boldminded.com
 -----------------------------------------------------
@@ -210,12 +210,19 @@ class Url_helper_ext {
         // Compose query, get results
         if (array_key_exists('publisher', ee()->addons->get_installed('modules')) && !$defaultMode)
         {
+            $columnPrefix = '';
+
+            // EE 2.0
+            if (isset(ee()->publisher_lib)) {
+                $columnPrefix = 'publisher_';
+            }
+
             $query = ee()->db->select('pc.cat_id, pc.cat_url_title, pc.cat_name, pc.cat_description, pc.cat_image, pc.group_id, c.parent_id')
                 ->from('publisher_categories AS pc')
                 ->join('categories AS c', 'c.cat_id = pc.cat_id')
                 ->where('pc.site_id', $site)
-                ->where('pc.publisher_lang_id', $langId)
-                ->where('pc.publisher_status', $status)
+                ->where('pc.'. $columnPrefix .'lang_id', $langId)
+                ->where('pc.'. $columnPrefix .'status', $status)
                 ->where_in('pc.cat_url_title', $segs)
                 ->get();
         }
