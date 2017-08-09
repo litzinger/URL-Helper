@@ -87,7 +87,7 @@ class Url_helper_ext {
             $data[$this->prefix.'referrer:segment_'. $i] = (isset($referrer_segments[$i-1])) ? $referrer_segments[$i-1] : '';
         }
 
-        array_map(function($segment) {
+        array_map(function($segment) use (&$data) {
             if (preg_match('/P(\d+)/',$segment, $matches)) {
                 $data[$this->prefix.'page_number'] = $matches[1];
                 $data[$this->prefix.'page_offset'] = $matches[1];
