@@ -199,28 +199,35 @@ class Url_helper_ext {
             $segs[] = $seg;
         }
 
-        if (version_compare(APP_VER, '3.0.0', '<')) {
-            $langId = ee()->publisher_lib->lang_id;
-            $status = ee()->publisher_lib->status;
-            $defaultMode = ee()->publisher_lib->is_default_mode;
-        } else {
-            /** @var \BoldMinded\Publisher\Service\Request $request */
-            $request = ee(\BoldMinded\Publisher\Service\Request::NAME);
-            $langId = $request->getCurrentLanguage()->getId();
-            $status = $request->getCurrentStatus();
-            $defaultMode = $request->isDefaultMode();
+        $publisherVersion = 2;
+        $isPublisherInstalled = array_key_exists('publisher', ee()->addons->get_installed('modules'));
+        $defaultMode = true;
+
+        if ($isPublisherInstalled) {
+            if (version_compare(APP_VER, '3.0.0', '<')) {
+                $langId = ee()->publisher_lib->lang_id;
+                $status = ee()->publisher_lib->status;
+                $defaultMode = ee()->publisher_lib->is_default_mode;
+                $publisherVersion = 1;
+            } else {
+                /** @var \BoldMinded\Publisher\Service\Request $request */
+                $request = ee(\BoldMinded\Publisher\Service\Request::NAME);
+                $langId = $request->getCurrentLanguage()->getId();
+                $status = $request->getCurrentStatus();
+                $defaultMode = $request->isDefaultMode();
+            }
         }
 
         // Compose query, get results
-        if (array_key_exists('publisher', ee()->addons->get_installed('modules')) && !$defaultMode)
-        {
+        if ($isPublisherInstalled && !$defaultMode) {
             $columnPrefix = '';
 
             // EE 2.0
-            if (isset(ee()->publisher_lib)) {
+            if ($publisherVersion === 1) {
                 $columnPrefix = 'publisher_';
             }
 
+            /** @var CI_DB_result $query */
             $query = ee()->db->select('pc.cat_id, pc.cat_url_title, pc.cat_name, pc.cat_description, pc.cat_image, pc.group_id, c.parent_id')
                 ->from('publisher_categories AS pc')
                 ->join('categories AS c', 'c.cat_id = pc.cat_id')
@@ -229,9 +236,8 @@ class Url_helper_ext {
                 ->where('pc.'. $columnPrefix .'status', $status)
                 ->where_in('pc.cat_url_title', $segs)
                 ->get();
-        }
-        else
-        {
+        } else {
+            /** @var CI_DB_result $query */
             $query = ee()->db->select('cat_id, cat_url_title, cat_name, cat_description, cat_image, parent_id, group_id')
                 ->from('categories')
                 ->where('site_id', $site)
@@ -240,8 +246,7 @@ class Url_helper_ext {
         }
 
         // if we have matching categories, continue...
-        if ($query->num_rows())
-        {
+        if ($query->num_rows()) {
             // Load typography
             ee()->load->library('typography');
 
@@ -249,8 +254,7 @@ class Url_helper_ext {
             $ids = array_flip(ee()->uri->segments);
 
             // loop through categories
-            foreach ($query->result_array() as $row)
-            {
+            foreach ($query->result_array() as $row) {
                 // overwrite values in data array
                 $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_id']            = $row['cat_id'];
                 $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_name']          = $this->format ? ee()->typography->format_characters($row['cat_name']) : $row['cat_name'];
@@ -260,8 +264,7 @@ class Url_helper_ext {
                 $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_group_id']     = $row['group_id'];
                 $cats[] = $row['cat_id'];
 
-                if($ids[$row['cat_url_title']] == count($ids))
-                {
+                if($ids[$row['cat_url_title']] == count($ids)) {
                     $data[$this->prefix.'last_segment_category_id']           = $row['cat_id'];
                     $data[$this->prefix.'last_segment_category_name']         = ee()->typography->format_characters($row['cat_name']);
                     $data[$this->prefix.'last_segment_category_description']  = $row['cat_description'];
@@ -301,8 +304,7 @@ class Url_helper_ext {
             array('hook'=>'sessions_start', 'method'=>'set_url_helper')
         );
 
-        foreach($extensions as $extension)
-        {
+        foreach($extensions as $extension) {
             $ext = array_merge($ext_template, $extension);
             ee()->db->insert('exp_extensions', $ext);
         }
