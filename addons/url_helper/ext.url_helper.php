@@ -17,6 +17,7 @@ http://gotolow.com/addons/low-seg2cat
 =====================================================
 CHANGELOG
 
+1.11.0 - Added {page_number} and {page_offset} to get the integer value from the /Px segment
 1.10.0 - Updated support for Publisher 2 in EE3
 1.0.9 - Changed all references of $this->EE to ee()
 1.0.8 - Added {current_url_lowercase} to assist with canonical URLs in environments that may have caps in URLs
@@ -81,10 +82,17 @@ class Url_helper_ext {
 
         // Now for something fun. Get the referring URL's segments! {referrer:segment_1}, {referrer:segment_2} etc
         $referrer_segments = explode('/', str_replace(ee()->config->item('site_url'), '', $data[$this->prefix.'referrer']));
-        for($i = 1; $i <= 9; $i++)
-        {
+
+        for($i = 1; $i <= 9; $i++) {
             $data[$this->prefix.'referrer:segment_'. $i] = (isset($referrer_segments[$i-1])) ? $referrer_segments[$i-1] : '';
         }
+
+        array_map(function($segment) {
+            if (preg_match('/P(\d+)/',$segment, $matches)) {
+                $data[$this->prefix.'page_number'] = $matches[1];
+                $data[$this->prefix.'page_offset'] = $matches[1];
+            }
+        }, $segs);
 
         // Get all the URL parts.
         // http://php.net/manual/en/function.parse-url.php
@@ -92,8 +100,7 @@ class Url_helper_ext {
 
         $is_https = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? true : false;
 
-        foreach($url as $k => $v)
-        {
+        foreach($url as $k => $v) {
             if ($k == 'scheme' AND $is_https) $v = 'https';
             $data[$this->prefix.$k] = $v;
         }
@@ -129,12 +136,10 @@ class Url_helper_ext {
         $data[$this->prefix.'all_segments_exclude_pagination'] = $data[$this->prefix.'all_segments'];
 
         // Get the last_segment, parent_segment and parent_segment prior to a /P segment
-        if(substr($last_segment,0,1) == 'P')
-        {
+        if(substr($last_segment,0,1) == 'P') {
             $end = substr($last_segment, 1, strlen($last_segment));
 
-            if ((preg_match( '/^\d*$/', $end) == 1))
-            {
+            if ((preg_match( '/^\d*$/', $end) == 1)) {
                 $data[$this->prefix.'all_segments_exclude_pagination'] = implode('/', $segs);
 
                 $last_segment_id = $segment_count-1;
@@ -157,8 +162,7 @@ class Url_helper_ext {
         $data[$this->prefix.'all_segments_absolute'] = $all_segments_absolute;
 
         $rseg = 1;
-        for($i = $last_segment_id; $i >= 1; $i--)
-        {
+        for($i = $last_segment_id; $i >= 1; $i--) {
             $data[$this->prefix.'rev_segment_'.$rseg] = ee()->uri->segment($i);
             $rseg++;
         }
