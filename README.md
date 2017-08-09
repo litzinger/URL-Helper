@@ -44,6 +44,9 @@ seg1/seg2/seg3
 ### {all_segments_exclude_pagination}
 seg1/seg2/seg3/P10 - Will return seg1/seg2/seg3
 
+### {page_number} or {page_offset}
+Get the integer value from the /Px segment. People refer to it as a page number, but its actually an offset value. Both variables contain the same value, just depends on which nomenclature you want to use.
+
 ### {current_url}
 http://www.mysite.com + segments + query string
 
