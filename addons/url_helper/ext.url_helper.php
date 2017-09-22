@@ -17,6 +17,7 @@ http://gotolow.com/addons/low-seg2cat
 =====================================================
 CHANGELOG
 
+1.12.0 - Added {segment_category_count}, which displays the total number of category segments found in the URL
 1.11.0 - Added {page_number} and {page_offset} to get the integer value from the /Px segment
 1.10.0 - Updated support for Publisher 2 in EE3
 1.0.9 - Changed all references of $this->EE to ee()
@@ -36,11 +37,10 @@ class Url_helper_ext {
 
     var $settings = array();
     var $name = 'URL Helper';
-    var $version = '1.10.0';
+    var $version = '1.12.0';
     var $description = 'Add various URL and segment variables to the Global variables.';
     var $settings_exist = 'n';
     var $docs_url = '';
-
     var $format = TRUE;
 
     function __construct($settings='')
@@ -276,6 +276,7 @@ class Url_helper_ext {
             // create inclusive stack of all category ids present in segments
             $data[$this->prefix.'segment_category_ids'] = implode('&',$cats);
             $data[$this->prefix.'segment_category_ids_any'] = implode('|',$cats);
+            $data[$this->prefix.'segment_category_count'] = count($cats);
         }
 
         // Add data to global vars
