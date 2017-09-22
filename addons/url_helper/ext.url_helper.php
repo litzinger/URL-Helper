@@ -184,7 +184,9 @@ class Url_helper_ext {
 
         // initiate some vars
         $site = ee()->config->item('site_id');
-        $data = $cats = $segs = array();
+        $data = array();
+        $cats = array();
+        $segs = array();
         $data[$this->prefix.'segment_category_ids'] = '';
         $data[$this->prefix.'segment_category_ids_any'] = '';
 
@@ -197,6 +199,49 @@ class Url_helper_ext {
             $data[$this->prefix.'segment_'.$nr.'_category_image']         = '';
             $data[$this->prefix.'segment_'.$nr.'_category_parent_id']     = '';
             $segs[] = $seg;
+        }
+
+        /** @var CI_DB_result $query */
+        $query = ee()->db->select('cat_id, cat_url_title, cat_name, cat_description, cat_image, parent_id, group_id')
+            ->from('categories')
+            ->where('site_id', $site)
+            ->where_in('cat_url_title', $segs)
+            ->get();
+
+        // if we have matching categories, continue...
+        if ($query->num_rows()) {
+            // Load typography
+            ee()->load->library('typography');
+
+            // flip segment array to get 'segment_1' => '1'
+            $ids = array_flip(ee()->uri->segments);
+
+            // loop through categories
+            foreach ($query->result_array() as $row) {
+                // overwrite values in data array
+                $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_id'] = $row['cat_id'];
+                $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_name'] = $this->format ? ee()->typography->format_characters($row['cat_name']) : $row['cat_name'];
+                $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_description'] = $row['cat_description'];
+                $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_image'] = $row['cat_image'];
+                $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_parent_id'] = $row['parent_id'];
+                $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_group_id'] = $row['group_id'];
+                $cats[] = $row['cat_id'];
+
+                if($ids[$row['cat_url_title']] == count($ids)) {
+                    $data[$this->prefix.'last_segment_category_id'] = $row['cat_id'];
+                    $data[$this->prefix.'last_segment_category_name'] = ee()->typography->format_characters($row['cat_name']);
+                    $data[$this->prefix.'last_segment_category_description'] = $row['cat_description'];
+                    $data[$this->prefix.'last_segment_category_image'] = $row['cat_image'];
+                    $data[$this->prefix.'last_segment_category_group_id'] = $row['group_id'];
+                }
+            }
+
+            $cats = array_unique($cats);
+
+            // create inclusive stack of all category ids present in segments
+            $data[$this->prefix.'segment_category_ids'] = implode('&',$cats);
+            $data[$this->prefix.'segment_category_ids_any'] = implode('|',$cats);
+            $data[$this->prefix.'segment_category_count'] = count($cats);
         }
 
         $publisherVersion = 2;
@@ -236,47 +281,38 @@ class Url_helper_ext {
                 ->where('pc.'. $columnPrefix .'status', $status)
                 ->where_in('pc.cat_url_title', $segs)
                 ->get();
-        } else {
-            /** @var CI_DB_result $query */
-            $query = ee()->db->select('cat_id, cat_url_title, cat_name, cat_description, cat_image, parent_id, group_id')
-                ->from('categories')
-                ->where('site_id', $site)
-                ->where_in('cat_url_title', $segs)
-                ->get();
-        }
 
-        // if we have matching categories, continue...
-        if ($query->num_rows()) {
-            // Load typography
-            ee()->load->library('typography');
+            if ($query->num_rows()) {
+                // flip segment array to get 'segment_1' => '1'
+                $ids = array_flip(ee()->uri->segments);
 
-            // flip segment array to get 'segment_1' => '1'
-            $ids = array_flip(ee()->uri->segments);
+                // loop through categories
+                foreach ($query->result_array() as $row) {
+                    // overwrite values in data array
+                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_id'] = $row['cat_id'];
+                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_name'] = $this->format ? ee()->typography->format_characters($row['cat_name']) : $row['cat_name'];
+                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_description'] = $row['cat_description'];
+                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_image'] = $row['cat_image'];
+                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_parent_id'] = $row['parent_id'];
+                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_group_id'] = $row['group_id'];
+                    $cats[] = $row['cat_id'];
 
-            // loop through categories
-            foreach ($query->result_array() as $row) {
-                // overwrite values in data array
-                $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_id']            = $row['cat_id'];
-                $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_name']          = $this->format ? ee()->typography->format_characters($row['cat_name']) : $row['cat_name'];
-                $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_description']   = $row['cat_description'];
-                $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_image']         = $row['cat_image'];
-                $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_parent_id']     = $row['parent_id'];
-                $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_group_id']     = $row['group_id'];
-                $cats[] = $row['cat_id'];
-
-                if($ids[$row['cat_url_title']] == count($ids)) {
-                    $data[$this->prefix.'last_segment_category_id']           = $row['cat_id'];
-                    $data[$this->prefix.'last_segment_category_name']         = ee()->typography->format_characters($row['cat_name']);
-                    $data[$this->prefix.'last_segment_category_description']  = $row['cat_description'];
-                    $data[$this->prefix.'last_segment_category_image']        = $row['cat_image'];
-                    $data[$this->prefix.'last_segment_category_group_id']        = $row['group_id'];
+                    if($ids[$row['cat_url_title']] == count($ids)) {
+                        $data[$this->prefix.'last_segment_category_id'] = $row['cat_id'];
+                        $data[$this->prefix.'last_segment_category_name'] = ee()->typography->format_characters($row['cat_name']);
+                        $data[$this->prefix.'last_segment_category_description'] = $row['cat_description'];
+                        $data[$this->prefix.'last_segment_category_image'] = $row['cat_image'];
+                        $data[$this->prefix.'last_segment_category_group_id'] = $row['group_id'];
+                    }
                 }
-            }
 
-            // create inclusive stack of all category ids present in segments
-            $data[$this->prefix.'segment_category_ids'] = implode('&',$cats);
-            $data[$this->prefix.'segment_category_ids_any'] = implode('|',$cats);
-            $data[$this->prefix.'segment_category_count'] = count($cats);
+                $cats = array_unique($cats);
+
+                // create inclusive stack of all category ids present in segments
+                $data[$this->prefix.'segment_category_ids'] = implode('&',$cats);
+                $data[$this->prefix.'segment_category_ids_any'] = implode('|',$cats);
+                $data[$this->prefix.'segment_category_count'] = count($cats);
+            }
         }
 
         // Add data to global vars
