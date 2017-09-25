@@ -179,9 +179,6 @@ class Url_helper_ext {
         // Only continue if request is a page and we have segments to check
         if (REQ != 'PAGE' || empty(ee()->uri->segments)) return;
 
-        // Suggestion by Leevi Graham: check for pattern before continuing
-        // if ( !empty($this->settings['uri_pattern']) && !preg_match($this->settings['uri_pattern'], ee()->uri->uri_string) ) return;
-
         // initiate some vars
         $site = ee()->config->item('site_id');
         $data = array();
@@ -189,6 +186,9 @@ class Url_helper_ext {
         $segs = array();
         $data[$this->prefix.'segment_category_ids'] = '';
         $data[$this->prefix.'segment_category_ids_any'] = '';
+
+        // Load typography
+        ee()->load->library('typography');
 
         // loop through segments and set data array thus: segment_1_category_id etc
         foreach (ee()->uri->segments AS $nr => $seg)
@@ -210,8 +210,6 @@ class Url_helper_ext {
 
         // if we have matching categories, continue...
         if ($query->num_rows()) {
-            // Load typography
-            ee()->load->library('typography');
 
             // flip segment array to get 'segment_1' => '1'
             $ids = array_flip(ee()->uri->segments);
