@@ -103,6 +103,9 @@ segments reversed
 ### {segment_category_ids_any}
 2|6|9 - useful for doing an "if any" search of the segments
 
+### {segment_category_count}
+Provide a total count of categories found in the URL
+
 ### {query}
 current query string without ?
 
