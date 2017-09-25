@@ -186,6 +186,7 @@ class Url_helper_ext {
         $segs = array();
         $data[$this->prefix.'segment_category_ids'] = '';
         $data[$this->prefix.'segment_category_ids_any'] = '';
+        $data[$this->prefix.'segment_category_count'] = '';
 
         // Load typography
         ee()->load->library('typography');
