@@ -17,6 +17,8 @@ http://gotolow.com/addons/low-seg2cat
 =====================================================
 CHANGELOG
 
+1.13.0 - Added snake case modifier to the cat_url_title, e.g. {segment_X_category_url_title:snake}
+       - Added :default modifiers to the name, url_title, and description values, e.g. {segment_x_category_name:default}
 1.12.0 - Added {segment_category_count}, which displays the total number of category segments found in the URL
 1.11.0 - Added {page_number} and {page_offset} to get the integer value from the /Px segment
 1.10.0 - Updated support for Publisher 2 in EE3
@@ -43,7 +45,10 @@ class Url_helper_ext {
     var $docs_url = '';
     var $format = TRUE;
 
-    function __construct($settings='')
+    /**
+     * @param string $settings
+     */
+    function __construct($settings = '')
     {
         $this->settings = $settings;
 
@@ -54,7 +59,7 @@ class Url_helper_ext {
     /**
      * Do the magic.
      */
-    function set_url_helper()
+    public function set_url_helper()
     {
         // Save a copy of the array so we don't reverse the global array, oops!
         $segs = ee()->uri->segments;
@@ -171,10 +176,10 @@ class Url_helper_ext {
         ee()->config->_global_vars = array_merge(ee()->config->_global_vars, $data);
 
         // This is basically the LowSeg2Cat extension.
-        $this->set_category_segments();
+        $this->setCategorySegments();
     }
 
-    private function set_category_segments()
+    private function setCategorySegments()
     {
         // Only continue if request is a page and we have segments to check
         if (REQ != 'PAGE' || empty(ee()->uri->segments)) return;
@@ -191,27 +196,41 @@ class Url_helper_ext {
         // Load typography
         ee()->load->library('typography');
 
-        // loop through segments and set data array thus: segment_1_category_id etc
-        foreach (ee()->uri->segments AS $nr => $seg)
-        {
-            $data[$this->prefix.'segment_'.$nr.'_category_id']            = '';
-            $data[$this->prefix.'segment_'.$nr.'_category_name']          = '';
-            $data[$this->prefix.'segment_'.$nr.'_category_description']   = '';
-            $data[$this->prefix.'segment_'.$nr.'_category_image']         = '';
-            $data[$this->prefix.'segment_'.$nr.'_category_parent_id']     = '';
+        // Set defaults so variable usage returns false if used, even if they are not set.
+        foreach (ee()->uri->segments AS $nr => $seg) {
+            $data[$this->prefix.'segment_'.$nr.'_category_id'] = '';
+            $data[$this->prefix.'segment_'.$nr.'_category_name'] = '';
+            $data[$this->prefix.'segment_'.$nr.'_category_name:default'] = '';
+            $data[$this->prefix.'segment_'.$nr.'_category_description'] = '';
+            $data[$this->prefix.'segment_'.$nr.'_category_description:default'] = '';
+            $data[$this->prefix.'segment_'.$nr.'_category_image'] = '';
+            $data[$this->prefix.'segment_'.$nr.'_category_parent_id'] = '';
+            $data[$this->prefix.'segment_'.$nr.'_category_url_title:default'] = '';
+            $data[$this->prefix.'segment_'.$nr.'_category_url_title:snake'] = '';
+            $data[$this->prefix.'segment_'.$nr.'_category_url_title:default:snake'] = '';
             $segs[] = $seg;
         }
 
+        $columns = array(
+            'cat_id',
+            'cat_url_title',
+            'cat_name',
+            'cat_description',
+            'cat_image',
+            'group_id',
+            'parent_id',
+        );
+
         /** @var CI_DB_result $query */
-        $query = ee()->db->select('cat_id, cat_url_title, cat_name, cat_description, cat_image, parent_id, group_id')
+        $query = ee()->db->select(implode(', ', $columns))
             ->from('categories')
             ->where('site_id', $site)
             ->where_in('cat_url_title', $segs)
             ->get();
 
         // if we have matching categories, continue...
-        if ($query->num_rows()) {
-
+        if ($query->num_rows())
+        {
             // flip segment array to get 'segment_1' => '1'
             $ids = array_flip(ee()->uri->segments);
 
@@ -224,6 +243,7 @@ class Url_helper_ext {
                 $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_image'] = $row['cat_image'];
                 $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_parent_id'] = $row['parent_id'];
                 $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_group_id'] = $row['group_id'];
+                $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_url_title:snake'] = $this->snakeCase($row['cat_url_title']);
                 $cats[] = $row['cat_id'];
 
                 if($ids[$row['cat_url_title']] == count($ids)) {
@@ -232,6 +252,7 @@ class Url_helper_ext {
                     $data[$this->prefix.'last_segment_category_description'] = $row['cat_description'];
                     $data[$this->prefix.'last_segment_category_image'] = $row['cat_image'];
                     $data[$this->prefix.'last_segment_category_group_id'] = $row['group_id'];
+                    $data[$this->prefix.'last_segment_category_url_title:snake'] = $this->snakeCase($row['cat_url_title']);
                 }
             }
 
@@ -271,8 +292,21 @@ class Url_helper_ext {
                 $columnPrefix = 'publisher_';
             }
 
+            $columns = array(
+                'pc.cat_id',
+                'pc.cat_url_title',
+                'pc.cat_name',
+                'pc.cat_description',
+                'pc.cat_image',
+                'pc.group_id',
+                'c.parent_id',
+                'c.cat_url_title AS cat_url_title_default',
+                'c.cat_name AS cat_name_default',
+                'c.cat_description AS cat_description_default',
+            );
+
             /** @var CI_DB_result $query */
-            $query = ee()->db->select('pc.cat_id, pc.cat_url_title, pc.cat_name, pc.cat_description, pc.cat_image, pc.group_id, c.parent_id')
+            $query = ee()->db->select(implode(', ', $columns))
                 ->from('publisher_categories AS pc')
                 ->join('categories AS c', 'c.cat_id = pc.cat_id')
                 ->where('pc.site_id', $site)
@@ -289,19 +323,29 @@ class Url_helper_ext {
                 foreach ($query->result_array() as $row) {
                     // overwrite values in data array
                     $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_id'] = $row['cat_id'];
-                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_name'] = $this->format ? ee()->typography->format_characters($row['cat_name']) : $row['cat_name'];
-                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_description'] = $row['cat_description'];
+                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_name'] = $this->formatCharacters($row['cat_name']);
+                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_name:default'] = $this->formatCharacters($row['cat_name_default']);
+                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_description'] = $this->formatCharacters($row['cat_description']);
+                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_description:default'] = $this->formatCharacters($row['cat_description_default']);
                     $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_image'] = $row['cat_image'];
                     $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_parent_id'] = $row['parent_id'];
                     $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_group_id'] = $row['group_id'];
+                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_url_title:snake'] = $this->snakeCase($row['cat_url_title']);
+                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_url_title:default'] = $row['cat_url_title_default'];
+                    $data[$this->prefix.'segment_'.$ids[$row['cat_url_title']].'_category_url_title:default:snake'] = $this->snakeCase($row['cat_url_title_default']);
                     $cats[] = $row['cat_id'];
 
                     if($ids[$row['cat_url_title']] == count($ids)) {
                         $data[$this->prefix.'last_segment_category_id'] = $row['cat_id'];
-                        $data[$this->prefix.'last_segment_category_name'] = ee()->typography->format_characters($row['cat_name']);
-                        $data[$this->prefix.'last_segment_category_description'] = $row['cat_description'];
+                        $data[$this->prefix.'last_segment_category_name'] = $this->formatCharacters($row['cat_name']);
+                        $data[$this->prefix.'last_segment_category_name:default'] = $this->formatCharacters($row['cat_name_default']);
+                        $data[$this->prefix.'last_segment_category_description'] = $this->formatCharacters($row['cat_description']);
+                        $data[$this->prefix.'last_segment_category_description:default'] = $this->formatCharacters($row['cat_description_default']);
                         $data[$this->prefix.'last_segment_category_image'] = $row['cat_image'];
                         $data[$this->prefix.'last_segment_category_group_id'] = $row['group_id'];
+                        $data[$this->prefix.'last_segment_category_url_title:snake'] = $this->snakeCase($row['cat_url_title']);
+                        $data[$this->prefix.'last_segment_category_url_title:default'] = $row['cat_url_title_default'];
+                        $data[$this->prefix.'last_segment_category_url_title:default:snake'] = $this->snakeCase($row['cat_url_title_default']);
                     }
                 }
 
@@ -362,5 +406,27 @@ class Url_helper_ext {
         // Delete records
         ee()->db->where('class', __CLASS__);
         ee()->db->delete('exp_extensions');
+    }
+
+    /**
+     * @param $str
+     * @return string
+     */
+    private function snakeCase($str)
+    {
+        return strtolower(preg_replace("/[^a-zA-Z0-9]/", '_', $str));
+    }
+
+    /**
+     * @param $str
+     * @return mixed
+     */
+    private function formatCharacters($str)
+    {
+        if ($this->format) {
+            return ee()->typography->format_characters($str);
+        }
+
+        return $str;
     }
 }

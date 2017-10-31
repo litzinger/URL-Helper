@@ -81,21 +81,51 @@ segments reversed
 
 ### {segment_N_category_name}
 
+### {segment_N_category_name:default}
+If using Publisher, this will provide the default language value
+
 ### {segment_N_category_description}
+
+### {segment_N_category_description:default}
+If using Publisher, this will provide the default language value
 
 ### {segment_N_category_image}
 
 ### {segment_N_category_group_id}
 
+### {segment_N_category_url_title:default}
+If using Publisher, this will provide the default language value
+
+### {segment_N_category_url_title:snake}
+Will provide the url_title in snake case. Useful if you're using dashes to separate words in your url segments. Will turn this-word into this_word.
+
+### {segment_N_category_url_title:default:snake}
+If using Publisher, this will provide the default language value
+
 ### {last_segment_category_id}
 
 ### {last_segment_category_name}
 
+### {last_segment_category_name:default}
+If using Publisher, this will provide the default language value
+
 ### {last_segment_category_description}
+
+### {last_segment_category_description:default}
+If using Publisher, this will provide the default language value
 
 ### {last_segment_category_image}
 
 ### {last_segment_category_group_id}
+
+### {last_segment_category_url_title:default}
+If using Publisher, this will provide the default language value
+
+### {last_segment_category_url_title:snake}
+Will provide the url_title in snake case. Useful if you're using dashes to separate words in your url segments. Will turn this-word into this_word.
+
+### {last_segment_category_url_title:default:snake}
+If using Publisher, this will provide the default language value
 
 ### {segment_category_ids}
 2&6&9 - useful for doing an all inclusive search of the segments
