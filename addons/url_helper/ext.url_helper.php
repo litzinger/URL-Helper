@@ -17,6 +17,7 @@ http://gotolow.com/addons/low-seg2cat
 =====================================================
 CHANGELOG
 
+1.14.0 - Dropped support for EE2. Updated call to ee('Security/XSS')->clean()
 1.13.0 - Added snake case modifier to the cat_url_title, e.g. {segment_X_category_url_title:snake}
        - Added :default modifiers to the name, url_title, and description values, e.g. {segment_x_category_name:default}
 1.12.0 - Added {segment_category_count}, which displays the total number of category segments found in the URL
@@ -79,7 +80,7 @@ class Url_helper_ext {
         $data[$this->prefix.'is_ajax_request'] = ee()->input->is_ajax_request();
 
         // Get the full referring URL
-        $data[$this->prefix.'referrer'] = ( ! isset($_SERVER['HTTP_REFERER'])) ? '' : ee()->security->xss_clean($_SERVER['HTTP_REFERER']);
+        $data[$this->prefix.'referrer'] = ( ! isset($_SERVER['HTTP_REFERER'])) ? '' : ee('Security/XSS')->clean($_SERVER['HTTP_REFERER']);
 
         // Strip semi-colons from the URL which would otherwise throw a "Disallowed Key Characters" error
         // Stems from a 5 year old bug in CI :/ http://ellislab.com/forums/viewthread/84137/P15
