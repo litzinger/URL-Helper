@@ -17,7 +17,8 @@ http://gotolow.com/addons/low-seg2cat
 =====================================================
 CHANGELOG
 
-1.14.0 - Dropped support for EE2. Updated call to ee('Security/XSS')->clean()
+1.14.0 - Switched to core_boot() hook instead of session_start()
+       - Dropped support for EE2. Updated call to ee('Security/XSS')->clean()
 1.13.0 - Added snake case modifier to the cat_url_title, e.g. {segment_X_category_url_title:snake}
        - Added :default modifiers to the name, url_title, and description values, e.g. {segment_x_category_name:default}
 1.12.0 - Added {segment_category_count}, which displays the total number of category segments found in the URL
@@ -40,7 +41,7 @@ class Url_helper_ext {
 
     var $settings = array();
     var $name = 'URL Helper';
-    var $version = '1.12.0';
+    var $version = '1.14.0';
     var $description = 'Add various URL and segment variables to the Global variables.';
     var $settings_exist = 'n';
     var $docs_url = '';
@@ -382,7 +383,7 @@ class Url_helper_ext {
         );
 
         $extensions = array(
-            array('hook'=>'sessions_start', 'method'=>'set_url_helper')
+            array('hook'=>'core_boot', 'method'=>'set_url_helper')
         );
 
         foreach($extensions as $extension) {
@@ -397,7 +398,13 @@ class Url_helper_ext {
      * Manual says this function is required.
      * @param string $current currently installed version
      */
-    function update_extension($current = '') {}
+    function update_extension($current = '')
+    {
+        if (version_compare($current, $this->version, '<')) {
+            // Perform a re-install to update the hook name
+            $this->activate_extension();
+        }
+    }
 
     /**
      * Uninstalls extension
