@@ -1,12 +1,16 @@
 <?php
 
+if (!defined('URL_HELPER_VERSION')) {
+    define('URL_HELPER_VERSION', '1.15.0');
+}
+
 return [
     'author'        => 'BoldMinded',
     'author_url'    => 'https://boldminded.com',
     'docs_url'      => 'https://github.com/litzinger/url-helper',
     'name'          => 'Url Helper',
     'description'   => '',
-    'version'       => '1.13.0',
+    'version'       => URL_HELPER_VERSION,
     'namespace'     => 'BoldMinded\UrlHelper',
     'settings_exist' => false,
 ];
