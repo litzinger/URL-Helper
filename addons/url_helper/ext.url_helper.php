@@ -3,20 +3,19 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /*
 =====================================================
-URL Helper Extension for ExpressionEngine 2.0 & 3.0
+URL Helper Extension for ExpressionEngine 3 & 4
 -----------------------------------------------------
 http://www.boldminded.com
 -----------------------------------------------------
 
-This is a combination of Bjorn Borresen's last_segment
-extension (although last_segment is in EE 2.3+ core),
-and Low's seg2cat extension. One hook call,
-less to maintain, and less parsing to handle.
-http://gotolow.com/addons/low-seg2cat
+This is a combination of Bjorn Borresen's last_segment extension (although last_segment is in EE 2.3+ core),
+and Low's seg2cat extension. One hook call, less to maintain, and less parsing to handle. http://gotolow.com/addons/low-seg2cat
+Also supports the Publisher module for translated category urls.
 
 =====================================================
 CHANGELOG
 
+1.15.0 - Code cleanup
 1.14.0 - Switched to core_boot() hook instead of session_start()
        - Dropped support for EE2. Updated call to ee('Security/XSS')->clean()
 1.13.0 - Added snake case modifier to the cat_url_title, e.g. {segment_X_category_url_title:snake}
@@ -37,15 +36,23 @@ CHANGELOG
 =====================================================
 */
 
-class Url_helper_ext {
+class Url_helper_ext
+{
 
-    var $settings = array();
-    var $name = 'URL Helper';
-    var $version = '1.14.0';
-    var $description = 'Add various URL and segment variables to the Global variables.';
-    var $settings_exist = 'n';
-    var $docs_url = '';
-    var $format = TRUE;
+    /**
+     * @var array
+     */
+    public $settings = [];
+
+    /**
+     * @var bool
+     */
+    private $format = true;
+
+    /**
+     * @var string
+     */
+    public $version = URL_HELPER_VERSION;
 
     /**
      * @param string $settings
@@ -54,14 +61,14 @@ class Url_helper_ext {
     {
         $this->settings = $settings;
 
-        $this->config = ee()->config->item('url_helper') ? ee()->config->item('url_helper') : array();
+        $this->config = ee()->config->item('url_helper') ? ee()->config->item('url_helper') : [];
         $this->prefix = isset($this->config['prefix']) ? $this->config['prefix'] : '';
     }
 
     /**
      * Do the magic.
      */
-    public function set_url_helper()
+    public function core_boot()
     {
         // Save a copy of the array so we don't reverse the global array, oops!
         $segs = ee()->uri->segments;
@@ -383,7 +390,7 @@ class Url_helper_ext {
         );
 
         $extensions = array(
-            array('hook'=>'core_boot', 'method'=>'set_url_helper')
+            array('hook'=>'core_boot', 'method'=>'core_boot')
         );
 
         foreach($extensions as $extension) {
