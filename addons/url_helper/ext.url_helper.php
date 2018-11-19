@@ -15,6 +15,8 @@ Also supports the Publisher module for translated category urls.
 =====================================================
 CHANGELOG
 
+1.16.0 - Added {query_string_with_separator} b/c Mo Variables overrides {query_string}, but without the ?
+         and ExpressionEngine creates {current_query_string} also without the ?
 1.15.0 - Code cleanup
 1.14.0 - Switched to core_boot() hook instead of session_start()
        - Dropped support for EE2. Updated call to ee('Security/XSS')->clean()
@@ -84,6 +86,7 @@ class Url_helper_ext
         $data[$this->prefix.'current_url_encoded'] = base64_encode(reduce_double_slashes($data[$this->prefix.'current_url']));
         $data[$this->prefix.'current_uri_encoded'] = base64_encode(reduce_double_slashes('/'. ee()->uri->uri_string . $qry));
         $data[$this->prefix.'query_string'] = $qry;
+        $data[$this->prefix.'query_string_with_separator'] = $qry;
         $data[$this->prefix.'all_segments'] = implode('/', $segs);
         $data[$this->prefix.'is_ajax_request'] = ee()->input->is_ajax_request();
 
