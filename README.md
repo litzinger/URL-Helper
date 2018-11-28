@@ -9,31 +9,31 @@ You can add a variable prefix to all the available variables below by adding the
 ## Variables
 
 ### {is_ajax_request}
-check to see if the current page was requested via ajax.
+Check to see if the current page was requested via ajax.
 
 ### {last_segment}
-returns the very last segment in the URI, even if it's a pagination segment
+Returns the very last segment in the URI, even if it's a pagination segment
 
 ### {last_segment_absolute}
-returns the very last segment in the URI, but 2nd to last if the last is a pagination segment
+Returns the very last segment in the URI, but 2nd to last if the last is a pagination segment
 
 ### {last_segment_id}
-returns the ID of the last segment, in the case of /seg1/seg2/seg3/ it will return "3"
+Returns the ID of the last segment, in the case of /seg1/seg2/seg3/ it will return "3"
 
 ### {last_segment_absolute_id}
-return the ID of the last segment, or 2nd to last if the last is a pagination segment. In the case of ### /seg1/seg2/seg3/P5 it will return "3"
+Return the ID of the last segment, or 2nd to last if the last is a pagination segment. In the case of ### /seg1/seg2/seg3/P5 it will return "3"
 
 ### {parent_segment}
 Will return the 2nd to last segment in the URI. In the case of /seg1/seg2/seg3/, it will return "seg2"
 
 ### {parent_segment_id}
-returns the ID of the 2nd to last segment, in the case of /seg1/seg2/seg3/ it will return "2"
+Returns the ID of the 2nd to last segment, in the case of /seg1/seg2/seg3/ it will return "2"
 
 ### {parent_segment_absolute}
-returns the 2nd to last segment in the URI, but 3rd to last if the last is a pagination segment
+Returns the 2nd to last segment in the URI, but 3rd to last if the last is a pagination segment
 
 ### {parent_segment_absolute_id}
-return the ID of the 2nd to last segment, or 3rd to last if the last is a pagination segment. In the case of ### /seg1/seg2/seg3/P5 it will return "2"
+Return the ID of the 2nd to last segment, or 3rd to last if the last is a pagination segment. In the case of ### /seg1/seg2/seg3/P5 it will return "2"
 
 ### {all_parent_segments}
 seg1/seg2/seg3 - Will return seg1/seg2
@@ -57,7 +57,7 @@ http://www.mysite.com + segments
 Same as {current_url} but lowercases it
 
 ### {current_uri}
-segments + query string
+Segments + query string
 
 ### {current_url_encoded}
 {current_url} base64encoded
@@ -66,16 +66,19 @@ segments + query string
 {current_uri} base64encoded
 
 ### {query_string}
-current query string including ?, returns blank if no query string exists
+Current query string including ?, returns blank if no query string exists
+
+### {query_string_with_separator}
+Exactly the same as {query_string}, but with a different name incase Mo' Variables overrides it.
 
 ### {referrer}
-full referring/previous url visited
+Full referring/previous url visited
 
 ### {referrer:segment_N}
-fetch any segment from the referring url
+Fetch any segment from the referring url
 
 ### {rev_segment_N}
-segments reversed
+Segments reversed
 
 ### {segment_N_category_id}
 
@@ -137,22 +140,22 @@ If using Publisher, this will provide the default language value
 Provide a total count of categories found in the URL
 
 ### {query}
-current query string without ?
+Current query string without ?
 
 ### {scheme}
 http, https, ftp etc
 
 ### {host}
-your domain name, e.g. localhost, site.com
+Your domain name, e.g. localhost, site.com
 
 ### {port}
-any port number present in the URL, e.g. :80 or :8888
+Any port number present in the URL, e.g. :80 or :8888
 
 ### {path}
-full folder/virtural folder path or all segments if your site is located at the root of the domain/vhost
+Full folder/virtural folder path or all segments if your site is located at the root of the domain/vhost
 
 ### {fragment}
-anything after # in the URI
+Anything after # in the URI
 
 ### {user}
 
