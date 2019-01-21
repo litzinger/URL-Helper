@@ -86,6 +86,7 @@ class Url_helper_ext
         $data[$this->prefix.'current_uri'] = reduce_double_slashes('/'. ee()->uri->uri_string . $qry);
         $data[$this->prefix.'current_url_encoded'] = base64_encode(reduce_double_slashes($data[$this->prefix.'current_url']));
         $data[$this->prefix.'current_uri_encoded'] = base64_encode(reduce_double_slashes('/'. ee()->uri->uri_string . $qry));
+        // 2 variables, same value, because Mo' Variables can override {query_string} :(
         $data[$this->prefix.'query_string'] = $qry;
         $data[$this->prefix.'query_string_with_separator'] = $qry;
         $data[$this->prefix.'all_segments'] = implode('/', $segs);
