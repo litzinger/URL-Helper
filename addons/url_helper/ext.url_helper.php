@@ -15,6 +15,7 @@ Also supports the Publisher module for translated category urls.
 =====================================================
 CHANGELOG
 
+1.16.1 - Set default value of {page_number} and {page_offset} to 0
 1.16.0 - Added {query_string_with_separator} b/c Mo Variables overrides {query_string}, but without the ?
          and ExpressionEngine creates {current_query_string} also without the ?
 1.15.0 - Code cleanup
@@ -79,17 +80,17 @@ class Url_helper_ext
 
         $current_url_path = ee()->config->item('site_url') . ee()->uri->uri_string;
 
-        $data[$this->prefix.'all_segments'] = implode('/', $segs);   
         $data[$this->prefix.'current_url'] = reduce_double_slashes($current_url_path . $qry);
         $data[$this->prefix.'current_url_path'] = reduce_double_slashes($current_url_path);
         $data[$this->prefix.'current_url_lowercase'] = strtolower($data[$this->prefix.'current_url']);
         $data[$this->prefix.'current_uri'] = reduce_double_slashes('/'. ee()->uri->uri_string . $qry);
         $data[$this->prefix.'current_url_encoded'] = base64_encode(reduce_double_slashes($data[$this->prefix.'current_url']));
         $data[$this->prefix.'current_uri_encoded'] = base64_encode(reduce_double_slashes('/'. ee()->uri->uri_string . $qry));
-        $data[$this->prefix.'is_ajax_request'] = ee()->input->is_ajax_request();
         // 2 variables, same value, because Mo' Variables can override {query_string} :(
         $data[$this->prefix.'query_string'] = $qry;
         $data[$this->prefix.'query_string_with_separator'] = $qry;
+        $data[$this->prefix.'all_segments'] = implode('/', $segs);
+        $data[$this->prefix.'is_ajax_request'] = ee()->input->is_ajax_request();
 
         // Get the full referring URL
         $data[$this->prefix.'referrer'] = ( ! isset($_SERVER['HTTP_REFERER'])) ? '' : ee('Security/XSS')->clean($_SERVER['HTTP_REFERER']);
@@ -104,6 +105,9 @@ class Url_helper_ext
         for($i = 1; $i <= 9; $i++) {
             $data[$this->prefix.'referrer:segment_'. $i] = (isset($referrer_segments[$i-1])) ? $referrer_segments[$i-1] : '';
         }
+
+        $data[$this->prefix.'page_number'] = 0;
+        $data[$this->prefix.'page_offset'] = 0;
 
         array_map(function($segment) use (&$data) {
             if (preg_match('/P(\d+)/',$segment, $matches)) {
