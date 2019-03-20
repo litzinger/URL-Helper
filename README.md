@@ -142,6 +142,9 @@ Provide a total count of categories found in the URL
 ### {query}
 Current query string without ?
 
+### {get:[variable_name]} or {param:[variable_name]}
+Grab the value of a $_GET parameter from the URL
+
 ### {scheme}
 http, https, ftp etc
 
