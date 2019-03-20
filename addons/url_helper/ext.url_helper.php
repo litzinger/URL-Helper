@@ -15,6 +15,7 @@ Also supports the Publisher module for translated category urls.
 =====================================================
 CHANGELOG
 
+1.27.0 - Add support for GET parameters: {url:param:foo} if URL contains ?foo=bar, this will print "bar" to the page.
 1.16.1 - Set default value of {page_number} and {page_offset} to 0
 1.16.0 - Added {query_string_with_separator} b/c Mo Variables overrides {query_string}, but without the ?
          and ExpressionEngine creates {current_query_string} also without the ?
@@ -73,6 +74,8 @@ class Url_helper_ext
      */
     public function core_boot()
     {
+        $xss = ee('Security/XSS');
+             
         // Save a copy of the array so we don't reverse the global array, oops!
         $segs = ee()->uri->segments;
 
@@ -93,7 +96,7 @@ class Url_helper_ext
         $data[$this->prefix.'is_ajax_request'] = ee()->input->is_ajax_request();
 
         // Get the full referring URL
-        $data[$this->prefix.'referrer'] = ( ! isset($_SERVER['HTTP_REFERER'])) ? '' : ee('Security/XSS')->clean($_SERVER['HTTP_REFERER']);
+        $data[$this->prefix.'referrer'] = ( ! isset($_SERVER['HTTP_REFERER'])) ? '' : $xss->clean($_SERVER['HTTP_REFERER']);
 
         // Strip semi-colons from the URL which would otherwise throw a "Disallowed Key Characters" error
         // Stems from a 5 year old bug in CI :/ http://ellislab.com/forums/viewthread/84137/P15
@@ -125,6 +128,14 @@ class Url_helper_ext
         foreach($url as $k => $v) {
             if ($k == 'scheme' AND $is_https) $v = 'https';
             $data[$this->prefix.$k] = $v;
+        }
+        
+        // Capture all GET parameters and create variables out of them
+        if (isset($data[$this->prefix.'query'])) {
+            parse_str($data[$this->prefix . 'query'], $get_params);
+            foreach ($get_params as $key => $value) {
+                $data[$this->prefix . 'param:' . $xss->clean($key)] = $xss->clean($value);
+            }
         }
 
         // Do a few things to get the parent segment, and only the parent segment
