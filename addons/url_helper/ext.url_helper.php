@@ -15,7 +15,7 @@ Also supports the Publisher module for translated category urls.
 =====================================================
 CHANGELOG
 
-1.27.0 - Add support for GET parameters: {url:param:foo} if URL contains ?foo=bar, this will print "bar" to the page.
+1.27.0 - Add support for GET parameters: {param:foo} or {get:foo} if URL contains ?foo=bar, this will print "bar" to the page.
 1.16.1 - Set default value of {page_number} and {page_offset} to 0
 1.16.0 - Added {query_string_with_separator} b/c Mo Variables overrides {query_string}, but without the ?
          and ExpressionEngine creates {current_query_string} also without the ?
@@ -134,7 +134,12 @@ class Url_helper_ext
         if (isset($data[$this->prefix.'query'])) {
             parse_str($data[$this->prefix . 'query'], $get_params);
             foreach ($get_params as $key => $value) {
-                $data[$this->prefix . 'param:' . $xss->clean($key)] = $xss->clean($value);
+                $key = $xss->clean($key);
+                $value = $xss->clean($value);
+                // backwards compatibility
+                $data[$this->prefix . 'param:' . $key] = $value;
+                // new variable     
+                $data[$this->prefix . 'get:' . $key] = $value;
             }
         }
 
