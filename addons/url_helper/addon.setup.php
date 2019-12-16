@@ -1,7 +1,7 @@
 <?php
 
 if (!defined('URL_HELPER_VERSION')) {
-    define('URL_HELPER_VERSION', '1.16.0');
+    define('URL_HELPER_VERSION', '1.28.0');
 }
 
 return [
