@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /*
 =====================================================
-URL Helper Extension for ExpressionEngine 3 & 4
+URL Helper Extension for ExpressionEngine 3+
 -----------------------------------------------------
 http://www.boldminded.com
 -----------------------------------------------------
@@ -15,6 +15,7 @@ Also supports the Publisher module for translated category urls.
 =====================================================
 CHANGELOG
 
+1.28.0 - Add {is_paginating} variable
 1.27.0 - Add support for GET parameters: {param:foo} or {get:foo} if URL contains ?foo=bar, this will print "bar" to the page.
 1.16.1 - Set default value of {page_number} and {page_offset} to 0
 1.16.0 - Added {query_string_with_separator} b/c Mo Variables overrides {query_string}, but without the ?
@@ -118,6 +119,10 @@ class Url_helper_ext
                 $data[$this->prefix.'page_offset'] = $matches[1];
             }
         }, $segs);
+             
+        // Add boolean to check if paginating. Using {if page_number} works too, but that variable name isn't
+        // very indicative of what it is doing, so add another variable with better nomenclature.
+        $data[$this->prefix.'is_paginating'] = $data[$this->prefix.'page_number'] > 0;
 
         // Get all the URL parts.
         // http://php.net/manual/en/function.parse-url.php
