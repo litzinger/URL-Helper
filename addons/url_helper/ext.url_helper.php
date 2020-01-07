@@ -402,6 +402,7 @@ class Url_helper_ext
                 $data[$this->prefix.'segment_category_ids'] = implode('&',$cats);
                 $data[$this->prefix.'segment_category_ids_any'] = implode('|',$cats);
                 $data[$this->prefix.'segment_category_count'] = count($cats);
+                $data[$this->prefix.'segment_has_category'] = count($cats) > 0 ? true : false;
             }
         }
 
