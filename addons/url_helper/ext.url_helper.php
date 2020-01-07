@@ -15,6 +15,7 @@ Also supports the Publisher module for translated category urls.
 =====================================================
 CHANGELOG
 
+1.29.0 - Add {segment_has_category} and {is_category_list} variables
 1.28.0 - Add {is_paginating} variable
 1.27.0 - Add support for GET parameters: {param:foo} or {get:foo} if URL contains ?foo=bar, this will print "bar" to the page.
 1.16.1 - Set default value of {page_number} and {page_offset} to 0
@@ -76,7 +77,7 @@ class Url_helper_ext
     public function core_boot()
     {
         $xss = ee('Security/XSS');
-             
+
         // Save a copy of the array so we don't reverse the global array, oops!
         $segs = ee()->uri->segments;
 
@@ -95,6 +96,7 @@ class Url_helper_ext
         $data[$this->prefix.'query_string_with_separator'] = $qry;
         $data[$this->prefix.'all_segments'] = implode('/', $segs);
         $data[$this->prefix.'is_ajax_request'] = ee()->input->is_ajax_request();
+        $data[$this->prefix.'is_category_list'] = false;
 
         // Get the full referring URL
         $data[$this->prefix.'referrer'] = ( ! isset($_SERVER['HTTP_REFERER'])) ? '' : $xss->clean($_SERVER['HTTP_REFERER']);
@@ -119,7 +121,7 @@ class Url_helper_ext
                 $data[$this->prefix.'page_offset'] = $matches[1];
             }
         }, $segs);
-             
+
         // Add boolean to check if paginating. Using {if page_number} works too, but that variable name isn't
         // very indicative of what it is doing, so add another variable with better nomenclature.
         $data[$this->prefix.'is_paginating'] = $data[$this->prefix.'page_number'] > 0;
@@ -134,7 +136,7 @@ class Url_helper_ext
             if ($k == 'scheme' AND $is_https) $v = 'https';
             $data[$this->prefix.$k] = $v;
         }
-        
+
         // Capture all GET parameters and create variables out of them
         if (isset($data[$this->prefix.'query'])) {
             parse_str($data[$this->prefix . 'query'], $get_params);
@@ -143,7 +145,7 @@ class Url_helper_ext
                 $value = $xss->clean($value);
                 // backwards compatibility
                 $data[$this->prefix . 'param:' . $key] = $value;
-                // new variable     
+                // new variable
                 $data[$this->prefix . 'get:' . $key] = $value;
             }
         }
@@ -224,12 +226,14 @@ class Url_helper_ext
 
         // initiate some vars
         $site = ee()->config->item('site_id');
-        $data = array();
-        $cats = array();
-        $segs = array();
+        $data = [];
+        $cats = [];
+        $segs = [];
         $data[$this->prefix.'segment_category_ids'] = '';
         $data[$this->prefix.'segment_category_ids_any'] = '';
         $data[$this->prefix.'segment_category_count'] = '';
+        $data[$this->prefix.'segment_has_category'] = false;
+        $reservedCategoryWord = ee()->config->item('reserved_category_word');
 
         // Load typography
         ee()->load->library('typography');
@@ -249,7 +253,7 @@ class Url_helper_ext
             $segs[] = $seg;
         }
 
-        $columns = array(
+        $columns = [
             'cat_id',
             'cat_url_title',
             'cat_name',
@@ -257,7 +261,7 @@ class Url_helper_ext
             'cat_image',
             'group_id',
             'parent_id',
-        );
+        ];
 
         /** @var CI_DB_result $query */
         $query = ee()->db->select(implode(', ', $columns))
@@ -300,6 +304,7 @@ class Url_helper_ext
             $data[$this->prefix.'segment_category_ids'] = implode('&',$cats);
             $data[$this->prefix.'segment_category_ids_any'] = implode('|',$cats);
             $data[$this->prefix.'segment_category_count'] = count($cats);
+            $data[$this->prefix.'segment_has_category'] = count($cats) > 0 ? true : false;
         }
 
         $publisherVersion = 2;
@@ -325,12 +330,16 @@ class Url_helper_ext
         if ($isPublisherInstalled && !$defaultMode) {
             $columnPrefix = '';
 
+            if (isset(ee()->publisher_category)) {
+                $reservedCategoryWord = ee()->publisher_category->get_cat_url_indicator();
+            }
+
             // EE 2.0
             if ($publisherVersion === 1) {
                 $columnPrefix = 'publisher_';
             }
 
-            $columns = array(
+            $columns = [
                 'pc.cat_id',
                 'pc.cat_url_title',
                 'pc.cat_name',
@@ -341,7 +350,7 @@ class Url_helper_ext
                 'c.cat_url_title AS cat_url_title_default',
                 'c.cat_name AS cat_name_default',
                 'c.cat_description AS cat_description_default',
-            );
+            ];
 
             /** @var CI_DB_result $query */
             $query = ee()->db->select(implode(', ', $columns))
@@ -394,6 +403,10 @@ class Url_helper_ext
                 $data[$this->prefix.'segment_category_ids_any'] = implode('|',$cats);
                 $data[$this->prefix.'segment_category_count'] = count($cats);
             }
+        }
+
+        if (in_array($reservedCategoryWord, $segs)) {
+            $data[$this->prefix.'is_category_list'] = true;
         }
 
         // Add data to global vars
