@@ -15,6 +15,7 @@ Also supports the Publisher module for translated category urls.
 =====================================================
 CHANGELOG
 
+1.30.0 - Properly encode html entities in GET variables.
 1.29.0 - Add {segment_has_category} and {is_category_list} variables
 1.28.0 - Add {is_paginating} variable
 1.27.0 - Add support for GET parameters: {param:foo} or {get:foo} if URL contains ?foo=bar, this will print "bar" to the page.
@@ -144,9 +145,9 @@ class Url_helper_ext
                 $key = $xss->clean($key);
                 $value = $xss->clean($value);
                 // backwards compatibility
-                $data[$this->prefix . 'param:' . $key] = $value;
+                $data[$this->prefix . 'param:' . $key] = htmlentities($value, ENT_QUOTES);
                 // new variable
-                $data[$this->prefix . 'get:' . $key] = $value;
+                $data[$this->prefix . 'get:' . $key] = htmlentities($value, ENT_QUOTES);
             }
         }
 
