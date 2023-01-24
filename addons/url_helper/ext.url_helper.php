@@ -145,9 +145,9 @@ class Url_helper_ext
                 $key = $xss->clean($key);
                 $value = $xss->clean($value);
                 // backwards compatibility
-                $data[$this->prefix . 'param:' . $key] = htmlentities($value, ENT_QUOTES);
+                $data[$this->prefix . 'param:' . $key] = is_string($value) ? htmlentities($value, ENT_QUOTES) : $value;
                 // new variable
-                $data[$this->prefix . 'get:' . $key] = htmlentities($value, ENT_QUOTES);
+                $data[$this->prefix . 'get:' . $key] = is_string($value) ? htmlentities($value, ENT_QUOTES) : $value;
             }
         }
 
