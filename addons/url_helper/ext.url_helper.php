@@ -15,6 +15,7 @@ Also supports the Publisher module for translated category urls.
 =====================================================
 CHANGELOG
 
+1.31.0 - Fixes for PHP 8.2
 1.30.0 - Properly encode html entities in GET variables.
 1.29.0 - Add {segment_has_category} and {is_category_list} variables
 1.28.0 - Add {is_paginating} variable
@@ -60,6 +61,9 @@ class Url_helper_ext
      * @var string
      */
     public $version = URL_HELPER_VERSION;
+
+    private $config;
+    private $prefix;
 
     /**
      * @param string $settings
